@@ -2,7 +2,7 @@ OS_NAME=$(shell uname -s)
 ifeq (${OS_NAME},Darwin)
 LDFLAGS=-framework CoreServices
 else ifeq (${OS_NAME},Linux)
-LDFLAGS=-Wl,-E
+LDFLAGS=-Wl,-E -lrt
 endif
 LDFLAGS+=-lmozjs185
 
@@ -41,8 +41,8 @@ ${HTTPDIR}/Makefile:
 ${HTTPDIR}/http_parser.o: ${HTTPDIR}/Makefile
 	${MAKE} -C ${HTTPDIR} http_parser.o
 
-spiderluv: build/main.o
-	$(CC) -g -o $@ build/main.o ${LDFLAGS}
+spiderluv: build/main.o ${DEPS}
+	$(CC) -g -o $@ build/main.o ${DEPS} ${LDFLAGS}
 
 build/%.o: src/%.c ${DEPS}
 	mkdir -p build

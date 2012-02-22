@@ -1,10 +1,5 @@
-/*
- * This define is for Windows only, it is a work-around for bug 661663.
- */
-#ifdef _MSC_VER
-# define XP_WIN
-#endif
 
+#include "uv.h"
 #include "jsapi.h"
 
 /* The class of the global object. */
@@ -54,9 +49,10 @@ int main(int argc, const char *argv[])
     if (!JS_InitStandardClasses(cx, global))
         return 1;
 
+    /* Start the libuv event loop */
+    uv_loop_t* loop = uv_default_loop();
+    uv_run(loop);
 
-    /* Your application code here. This may include JSAPI calls
-       to create your own custom JS objects and run scripts. */
 
     /* Cleanup. */
     JS_DestroyContext(cx);
