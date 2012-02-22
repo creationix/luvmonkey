@@ -10,3 +10,6 @@
 [submodule "deps/zlib"]
 	path = deps/zlib
 	url = https://github.com/creationix/zlib.git
+[submodule "tools/gyp"]
+	path = tools/gyp
+	url = https://github.com/creationix/gyp.git
