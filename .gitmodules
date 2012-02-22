@@ -1,0 +1,12 @@
+[submodule "deps/uv"]
+	path = deps/uv
+	url = https://github.com/joyent/libuv.git
+[submodule "deps/http-parser"]
+	path = deps/http-parser
+	url = https://github.com/joyent/http-parser.git
+[submodule "deps/yajl"]
+	path = deps/yajl
+	url = https://github.com/lloyd/yajl.git
+[submodule "deps/zlib"]
+	path = deps/zlib
+	url = https://github.com/creationix/zlib.git
