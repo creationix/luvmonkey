@@ -14,6 +14,9 @@ DEPS=${YAJLDIR}/yajl.a  \
      ${UVDIR}/uv.a      \
      ${HTTPDIR}/http_parser.o
 
+PARTS=build/luv.o \
+      build/main.o
+
 export Q=
 
 all: spiderluv
@@ -41,10 +44,10 @@ ${HTTPDIR}/Makefile:
 ${HTTPDIR}/http_parser.o: ${HTTPDIR}/Makefile
 	${MAKE} -C ${HTTPDIR} http_parser.o
 
-spiderluv: build/main.o ${DEPS}
-	$(CC) -g -o $@ build/main.o ${DEPS} ${LDFLAGS}
+spiderluv: ${PARTS} ${DEPS}
+	$(CC) -g -o $@ ${PARTS} ${DEPS} ${LDFLAGS}
 
-build/%.o: src/%.c ${DEPS}
+build/%.o: src/%.c src/%.h ${DEPS}
 	mkdir -p build
 	$(CC) --std=c89 -D_GNU_SOURCE -g -Wall -Werror -c $< -o $@ -I${HTTPDIR} -I${UVDIR}/include -I${YAJLDIR}/src/api -I${YAJLDIR}/src -I/usr/include/js -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 
