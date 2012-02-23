@@ -98,7 +98,6 @@ int main(int argc, const char *argv[])
 
   if ( argc != 2 )
   {
-    /* We print argv[0] assuming it is the program name */
     printf( "usage: %s filename\n", argv[0] );
     return 1;
   }
@@ -132,20 +131,21 @@ int main(int argc, const char *argv[])
   /* Attach the global functions */
   if (!JS_DefineFunctions(cx, global, global_functions)) return 1;
 
-  /* Put the uv_* function under the global object "uv" */
-  JSObject *uv = JS_NewObject(cx, NULL, NULL, NULL);
-  if (!JS_DefineFunctions(cx, uv, luv_functions)) return 1;
-  jsval uv_val = OBJECT_TO_JSVAL(uv);
-  if (!JS_SetProperty(cx, global, "uv", &uv_val)) return 1;
+  /* Make global reference itself at "global" */
+  jsval global_val = OBJECT_TO_JSVAL(global);
+  if (!JS_SetProperty(cx, global, "global", &global_val)) return 1;
+
+  /* Create a "uv" namespace for the uv_* functions */
+  JSObject* uv = JS_DefineObject(cx, global, "uv", NULL, NULL, 0);
+  if (luv_init(cx, uv)) return 1;
 
   /* Read the file on argv */
   const char* filename = argv[1];
 
-
   /* Test the API */
   jsval rval;
   char* source = read_file(filename);
-  JS_EvaluateScript(cx, global, source, strlen(source), filename, 0, &rval);
+  JS_EvaluateScript(cx, global, source, strlen(source), filename, 1, &rval);
   free(source);
 
   /* Cleanup. */

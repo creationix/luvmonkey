@@ -14,7 +14,10 @@ DEPS=${YAJLDIR}/yajl.a  \
      ${UVDIR}/uv.a      \
      ${HTTPDIR}/http_parser.o
 
-PARTS=build/luv.o \
+PARTS=build/luv.o        \
+			build/luv_handle.o \
+			build/luv_stream.o \
+			build/luv_tcp.o    \
       build/main.o
 
 export Q=
