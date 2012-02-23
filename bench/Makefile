@@ -35,8 +35,10 @@ http-simple: http-simple.o ${DEPS}
 	$(CC) --std=c89 -D_GNU_SOURCE -g -Wall -Werror -c $< -o $@ -I${HTTPDIR} -I${UVDIR}/include -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 
 clean:
-	${MAKE} -C ${HTTPDIR} clean
-	${MAKE} -C ${UVDIR} distclean
 	rm -f http-simple http-simple.o
 
-.PHONY: all clean
+distclean: clean
+	${MAKE} -C ${HTTPDIR} clean
+	${MAKE} -C ${UVDIR} distclean
+
+.PHONY: all clean distclean

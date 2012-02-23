@@ -52,9 +52,11 @@ build/%.o: src/%.c src/%.h ${DEPS}
 	$(CC) --std=c89 -D_GNU_SOURCE -g -Wall -Werror -c $< -o $@ -I${HTTPDIR} -I${UVDIR}/include -I${YAJLDIR}/src/api -I${YAJLDIR}/src -I/usr/include/js -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 
 clean:
+	rm -rf build spiderluv
+
+distclean: clean
 	${MAKE} -C ${HTTPDIR} clean
 	${MAKE} -C ${YAJLDIR} clean
 	${MAKE} -C ${UVDIR} distclean
-	rm -rf build spiderluv
 
-.PHONY: all clean
+.PHONY: all clean distclean
