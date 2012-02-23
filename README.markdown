@@ -4,7 +4,7 @@ Currently, the project is very alpha and exploratory.
 
 ## Building
 
-At the moment it's only been tested on Ubuntu (this should change soon when gyp support lands).  Also I'm using the libmozjs package from debian so skip building spidermonkey from source.
+At the moment it's only been tested on Ubuntu (this should change soon when gyp support lands).  Also I'm using the libmozjs package from debian to skip building spidermonkey from source.
 
 ```sh
 sudo apt-get install libmozjs185-dev 
