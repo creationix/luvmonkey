@@ -10,5 +10,5 @@ At the moment it's only been tested on Ubuntu (this should change soon when gyp 
 sudo apt-get install libmozjs185-dev 
 make -j4 # or however many cores you have
 # Test it
-./spiderluv test.js
+./luvmonkey test.js
 ```

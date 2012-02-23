@@ -22,7 +22,7 @@ PARTS=build/luv.o        \
 
 export Q=
 
-all: spiderluv
+all: luvmonkey
 
 ${YAJLDIR}/CMakeLists.txt:
 	git submodule update --init ${YAJLDIR}
@@ -47,7 +47,7 @@ ${HTTPDIR}/Makefile:
 ${HTTPDIR}/http_parser.o: ${HTTPDIR}/Makefile
 	${MAKE} -C ${HTTPDIR} http_parser.o
 
-spiderluv: ${PARTS} ${DEPS}
+luvmonkey: ${PARTS} ${DEPS}
 	$(CC) -g -o $@ ${PARTS} ${DEPS} ${LDFLAGS}
 
 build/%.o: src/%.c src/%.h ${DEPS}
@@ -55,7 +55,7 @@ build/%.o: src/%.c src/%.h ${DEPS}
 	$(CC) --std=c89 -D_GNU_SOURCE -g -Wall -Werror -c $< -o $@ -I${HTTPDIR} -I${UVDIR}/include -I${YAJLDIR}/src/api -I${YAJLDIR}/src -I/usr/include/js -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 
 clean:
-	rm -rf build spiderluv
+	rm -rf build luvmonkey
 
 distclean: clean
 	${MAKE} -C ${HTTPDIR} clean
