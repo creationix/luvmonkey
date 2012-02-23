@@ -21,6 +21,52 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
           message);
 }
 
+static JSBool
+PrintInternal(JSContext *cx, uintN argc, jsval *vp, FILE *file)
+{
+    jsval *argv;
+    uintN i;
+    JSString *str;
+    char *bytes;
+
+    argv = JS_ARGV(cx, vp);
+    for (i = 0; i < argc; i++) {
+        str = JS_ValueToString(cx, argv[i]);
+        if (!str)
+            return JS_FALSE;
+        bytes = JS_EncodeString(cx, str);
+        if (!bytes)
+            return JS_FALSE;
+        fprintf(file, "%s%s", i ? " " : "", bytes);
+        JS_free(cx, bytes);
+    }
+
+    fputc('\n', file);
+    fflush(file);
+
+    JS_SET_RVAL(cx, vp, JSVAL_VOID);
+    return JS_TRUE;
+}
+
+static JSBool
+Print(JSContext *cx, uintN argc, jsval *vp)
+{
+    return PrintInternal(cx, argc, vp, stdout);
+}
+
+static JSBool
+PrintErr(JSContext *cx, uintN argc, jsval *vp)
+{
+    return PrintInternal(cx, argc, vp, stderr);
+}
+
+static JSFunctionSpec global_functions[] = {
+    JS_FS("print", Print, 0, 0),
+    JS_FS("printErr", PrintErr, 0, 0),
+    JS_FS_END
+};
+
+
 int main(int argc, const char *argv[])
 {
   /* JS variables. */
@@ -49,6 +95,9 @@ int main(int argc, const char *argv[])
      like Object and Array. */
   if (!JS_InitStandardClasses(cx, global)) return 1;
 
+  /* Attach the global functions */
+  if (!JS_DefineFunctions(cx, global, global_functions)) return 1;
+
   /* Put the uv_* function under the global object "uv" */
   JSObject *uv = JS_NewObject(cx, NULL, NULL, NULL);
   if (!JS_DefineFunctions(cx, uv, luv_functions)) return 1;
@@ -57,7 +106,7 @@ int main(int argc, const char *argv[])
 
   /* Test the API */
   jsval rval;
-  char *source = "uv.ref();uv.unref();uv.run();";
+  char *source = "uv.ref();print('uv', uv);uv.unref();uv.run();";
   JS_EvaluateScript(cx, global, source, strlen(source), "sample.js", 0, &rval);
 
   /* Cleanup. */
