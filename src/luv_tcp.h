@@ -4,6 +4,7 @@
 #include "uv.h"
 #include "jsapi.h"
 #include "luv_stream.h"
+#include "helpers.h"
 
 JSObject* Tcp_prototype;
 

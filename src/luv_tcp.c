@@ -39,11 +39,7 @@ static JSBool luv_tcp_bind(JSContext *cx, uintN argc, jsval *vp) {
 
   struct sockaddr_in address = uv_ip4_addr(host, port);
 
-  if (uv_tcp_bind(handle, address)) {
-    uv_err_t err = uv_last_error(uv_default_loop());
-    JS_ReportError(cx, "uv_tcp_bind: %s", uv_strerror(err));
-    return JS_FALSE;
-  }
+  UV_CALL(uv_tcp_bind, handle, address);
 
   JS_SET_RVAL(cx, vp, JSVAL_VOID);
   return JS_TRUE;
@@ -57,11 +53,8 @@ static JSBool luv_tcp_nodelay(JSContext *cx, uintN argc, jsval *vp) {
   /* TODO: don't hardcode */
   int enable = 1;
 
-  if (uv_tcp_nodelay(handle, enable)) {
-    uv_err_t err = uv_last_error(uv_default_loop());
-    JS_ReportError(cx, "uv_tcp_nodelay: %s", uv_strerror(err));
-    return JS_FALSE;
-  }
+  UV_CALL(uv_tcp_nodelay, handle, enable);
+
   JS_SET_RVAL(cx, vp, JSVAL_VOID);
   return JS_TRUE;
 }
@@ -75,11 +68,8 @@ static JSBool luv_tcp_keepalive(JSContext *cx, uintN argc, jsval *vp) {
   int enable = 1;
   int delay = 500;
 
-  if (uv_tcp_keepalive(handle, enable, delay)) {
-    uv_err_t err = uv_last_error(uv_default_loop());
-    JS_ReportError(cx, "uv_tcp_keepalive: %s", uv_strerror(err));
-    return JS_FALSE;
-  }
+  UV_CALL(uv_tcp_keepalive, handle, enable, delay);
+
   JS_SET_RVAL(cx, vp, JSVAL_VOID);
   return JS_TRUE;
 }
