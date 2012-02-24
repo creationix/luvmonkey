@@ -2,7 +2,7 @@ This project is an effort to create a custom SpiderMonkey runtime that has libuv
 
 Currently, the project is very alpha and exploratory.  
 
-Come to #luvmonkey on freenode irc or to discuss any questions.
+Come to #luvmonkey on freenode irc to discuss any questions.
 
 ## Building
 
