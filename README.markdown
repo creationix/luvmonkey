@@ -2,6 +2,8 @@ This project is an effort to create a custom SpiderMonkey runtime that has libuv
 
 Currently, the project is very alpha and exploratory.  
 
+Come to #luvmonkey on freenode irc or to discuss any questions.
+
 ## Building
 
 At the moment it's only been tested on Ubuntu (this should change soon when gyp support lands).  Also I'm using the libmozjs package from debian to skip building spidermonkey from source.
