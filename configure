@@ -1,0 +1,14 @@
+#!/bin/sh
+
+GIT=git
+GYP=tools/gyp/gyp
+
+$GIT submodule init
+$GIT submodule update
+
+$GYP -Dlibrary=static_library   \
+     -Dcomponent=static_library \
+     -Icommon.gypi              \
+     --depth=$PWD               \
+     -f make                    \
+     spiderluv.gyp

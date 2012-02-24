@@ -1,2 +1,5 @@
-luvmonkey
-build
+/luvmonkey
+/out
+/Makefile
+*.Makefile
+*.mk
