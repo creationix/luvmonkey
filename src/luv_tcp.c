@@ -25,7 +25,7 @@ static JSBool Tcp_constructor(JSContext *cx, uintN argc, jsval *vp) {
 /* Free the uv_tcp_t* when the object gets GCed */
 static void Tcp_finalize(JSContext *cx, JSObject *this) {
   printf("Tcp instance getting freed\n");
-  free(JS_GetInstancePrivate(cx, this, &Tcp_class, NULL));
+  free(JS_GetPrivate(cx, this));
 }
 
 static JSBool luv_tcp_bind(JSContext *cx, uintN argc, jsval *vp) {
