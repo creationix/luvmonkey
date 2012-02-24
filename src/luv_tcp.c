@@ -1,23 +1,32 @@
 #include "luv_tcp.h"
 
+static void Tcp_finalize(JSContext *cx, JSObject *obj);
+
 static JSClass Tcp_class = {
   "Tcp", JSCLASS_HAS_PRIVATE,
   JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
-  JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
+  JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, Tcp_finalize,
   JSCLASS_NO_OPTIONAL_MEMBERS
 };
 
-/* TODO: Free the struct in the finalizer */
 
 static JSBool Tcp_constructor(JSContext *cx, uintN argc, jsval *vp) {
+  printf("Tcp instance getting created\n");
   JSObject* obj = JS_NewObject(cx, &Tcp_class, Tcp_prototype, NULL);
 
-  JS_SetPrivate(cx, obj, malloc(sizeof(uv_tcp_t)));
+  uv_tcp_t* handle = malloc(sizeof(uv_tcp_t));
+  uv_tcp_init(uv_default_loop(), handle);
+  JS_SetPrivate(cx, obj, handle);
 
   JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
   return JS_TRUE;
 }
 
+/* Free the uv_tcp_t* when the object gets GCed */
+static void Tcp_finalize(JSContext *cx, JSObject *this) {
+  printf("Tcp instance getting freed\n");
+  free(JS_GetInstancePrivate(cx, this, &Tcp_class, NULL));
+}
 
 static JSBool luv_tcp_bind(JSContext *cx, uintN argc, jsval *vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
@@ -40,8 +49,40 @@ static JSBool luv_tcp_bind(JSContext *cx, uintN argc, jsval *vp) {
   return JS_TRUE;
 }
 
+static JSBool luv_tcp_nodelay(JSContext *cx, uintN argc, jsval *vp) {
+  JSObject* this = JS_THIS_OBJECT(cx, vp);
+  uv_tcp_t* handle;
+  handle = (uv_tcp_t*)JS_GetInstancePrivate(cx, this, &Tcp_class, NULL);
+
+  /* TODO: don't hardcode */
+  int enable = 1;
+
+  if (uv_tcp_nodelay(handle, enable)) {
+    uv_err_t err = uv_last_error(uv_default_loop());
+    JS_ReportError(cx, "uv_tcp_nodelay: %s", uv_strerror(err));
+    return JS_FALSE;
+  }
+  JS_SET_RVAL(cx, vp, JSVAL_VOID);
+  return JS_TRUE;
+}
+/*
+int luv_tcp_keepalive (lua_State* L) {
+  uv_tcp_t* handle = (uv_tcp_t*)luv_checkudata(L, 1, "tcp");
+  int enable = lua_toboolean(L, 2);
+  int delay = lua_tointeger(L, 3);
+
+  if (uv_tcp_keepalive(handle, enable, delay)) {
+    uv_err_t err = uv_last_error(luv_get_loop(L));
+    return luaL_error(L, "tcp_keepalive: %s", uv_strerror(err));
+  }
+  return 0;
+
+}
+*/
+
 static JSFunctionSpec Tcp_methods[] = {
   JS_FS("bind", luv_tcp_bind, 0, JSPROP_ENUMERATE),
+  JS_FS("nodelay", luv_tcp_nodelay, 0, JSPROP_ENUMERATE),
   JS_FS_END
 };
 
