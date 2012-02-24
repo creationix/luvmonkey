@@ -171,7 +171,9 @@ function check() {
 p("uv", uv);
 var server = new uv.Tcp();
 server.nodelay(1);
+server.keepalive(1, 500);
 server.bind("0.0.0.0", 8080);
+server.close()
 
 print("Starting the event loop!");
 uv.run();

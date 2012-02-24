@@ -65,24 +65,29 @@ static JSBool luv_tcp_nodelay(JSContext *cx, uintN argc, jsval *vp) {
   JS_SET_RVAL(cx, vp, JSVAL_VOID);
   return JS_TRUE;
 }
-/*
-int luv_tcp_keepalive (lua_State* L) {
-  uv_tcp_t* handle = (uv_tcp_t*)luv_checkudata(L, 1, "tcp");
-  int enable = lua_toboolean(L, 2);
-  int delay = lua_tointeger(L, 3);
+
+static JSBool luv_tcp_keepalive(JSContext *cx, uintN argc, jsval *vp) {
+  JSObject* this = JS_THIS_OBJECT(cx, vp);
+  uv_tcp_t* handle;
+  handle = (uv_tcp_t*)JS_GetInstancePrivate(cx, this, &Tcp_class, NULL);
+
+  /* TODO: don't hardcode */
+  int enable = 1;
+  int delay = 500;
 
   if (uv_tcp_keepalive(handle, enable, delay)) {
-    uv_err_t err = uv_last_error(luv_get_loop(L));
-    return luaL_error(L, "tcp_keepalive: %s", uv_strerror(err));
+    uv_err_t err = uv_last_error(uv_default_loop());
+    JS_ReportError(cx, "uv_tcp_keepalive: %s", uv_strerror(err));
+    return JS_FALSE;
   }
-  return 0;
-
+  JS_SET_RVAL(cx, vp, JSVAL_VOID);
+  return JS_TRUE;
 }
-*/
 
 static JSFunctionSpec Tcp_methods[] = {
-  JS_FS("bind", luv_tcp_bind, 0, JSPROP_ENUMERATE),
-  JS_FS("nodelay", luv_tcp_nodelay, 0, JSPROP_ENUMERATE),
+  JS_FS("bind", luv_tcp_bind, 0, 0),
+  JS_FS("nodelay", luv_tcp_nodelay, 0, 0),
+  JS_FS("keepalive", luv_tcp_keepalive, 0, 0),
   JS_FS_END
 };
 
