@@ -1,3 +1,4 @@
+#include "uv.h"
 #include "luv_tcp.h"
 
 static void Tcp_finalize(JSContext *cx, JSObject *obj);

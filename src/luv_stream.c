@@ -1,3 +1,4 @@
+#include "uv.h"
 #include "luv_stream.h"
 
 static JSClass Stream_class = {

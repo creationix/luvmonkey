@@ -1,7 +1,6 @@
 #ifndef LUV_STREAM_H
 #define LUV_STREAM_H
 
-#include "uv.h"
 #include "jsapi.h"
 #include "luv_handle.h"
 

@@ -1,3 +1,4 @@
+#include "uv.h"
 #include "luv.h"
 #include "luv_handle.h"
 #include "luv_stream.h"

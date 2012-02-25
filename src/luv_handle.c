@@ -1,3 +1,4 @@
+#include "uv.h"
 #include "luv_handle.h"
 
 static JSClass Handle_class = {
