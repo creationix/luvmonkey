@@ -13,7 +13,8 @@
     'default_configuration': 'Debug',
     'configurations': {
       'Debug': {
-        'defines': [ 'DEBUG', '_DEBUG' ],
+        # This breaks the linker since the mozjs library isn't a debug build
+        #'defines': [ 'DEBUG', '_DEBUG' ],
         'cflags': [ '-g', '-O0' ],
         'conditions': [
           ['target_arch=="x64"', {
