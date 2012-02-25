@@ -4,22 +4,40 @@
   
   'targets': [
     {
+      'target_name': 'luv',
+      'type': 'static_library',
+      'dependencies': [
+        'deps/uv/uv.gyp:uv',
+      ],
+      'include_dirs': [
+        'src',
+        'deps/uv/src/ares',
+        '/usr/include/js'
+      ],
+      'conditions': [
+        ['OS=="linux" or OS=="freebsd" or OS=="openbsd" or OS=="solaris"', {
+          'cflags': [ '--std=c89' ],
+          'defines': [ '_GNU_SOURCE' ]
+        }],
+      ],
+      'sources': [
+        'src/luv_handle.c',
+        'src/luv_stream.c',
+        'src/luv_tcp.c',
+      ],
+    },
+    {
       'target_name': 'spiderluv',
       'type': 'executable',
 
       'dependencies': [
-        'deps/http-parser/http_parser.gyp:http_parser',
-        'deps/zlib/zlib.gyp:zlib',
-        'deps/uv/uv.gyp:uv',
+        'luv'
       ],
 
       'include_dirs': [
         'src',
         'deps/uv/src/ares',
-      ],
-
-      'defines': [
-        '_GNU_SOURCE',
+        '/usr/include/js'
       ],
 
       'libraries': [
