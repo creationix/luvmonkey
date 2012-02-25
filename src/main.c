@@ -66,31 +66,23 @@ static JSFunctionSpec global_functions[] = {
 };
 
 
+static JSBool compileFile(JSContext *cx, uintN argc, jsval *vp) {
 
-/* Read a file to memory */
-char* read_file(const char* filename) {
-  FILE* fd;
-  long length;
-  char* data;
-  size_t result;
+  /* TODO: get filename from arg */
+  const char* filename = "lib/utils.js";
+  JSObject* script = JS_CompileFile(cx, JS_THIS_OBJECT(cx, vp), filename);
+  if (!script) {
+    return JS_FALSE;
+  }
+  jsval result;
+  if (!JS_ExecuteScript(cx, JS_GetGlobalObject(cx), script, &result)) {
+    return JS_FALSE;
+  }
 
-  fd = fopen(filename , "rb" );
-  if (fd == NULL) { fputs("File error", stderr); exit (1); }
-
-  fseek (fd, 0, SEEK_END);
-  length = ftell(fd);
-  rewind(fd);
-
-  data = (char*)malloc(sizeof(char) * (length + 1));
-  if (data == NULL) { fputs ("Memory error", stderr); exit (2); }
-
-  result = fread(data, 1, length, fd);
-  if (result != length) { fputs ("Reading error", stderr); exit (3); }
-
-  fclose(fd);
-
-  return data;
+  JS_SET_RVAL(cx, vp, result);
+  return JS_TRUE;
 }
+
 
 int main(int argc, const char *argv[])
 {
@@ -137,24 +129,24 @@ int main(int argc, const char *argv[])
   JSObject* uv = JS_DefineObject(cx, global, "uv", NULL, NULL, 0);
   if (luv_init(cx, uv)) return 1;
 
+  /* define a compileFile function */
+  JS_DefineFunction(cx, global, "compileFile", compileFile, 1, 0);
+
   /* Set args as global */
   JSObject* args = JS_NewArrayObject(cx, 0, NULL);
   jsval args_val = OBJECT_TO_JSVAL(args);
   if (!JS_SetProperty(cx, global, "args", &args_val)) return 1;
   int index;
   for (index = 0; index < argc; index++) {
-    jsval arg = STRING_TO_JSVAL(JS_NewStringCopyN(cx, argv[index], strlen(argv[index])));
+    jsval arg = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, argv[index]));
     if (!JS_SetElement(cx, args, index, &arg)) return 1;
   }
 
-  /* Read the file on argv */
+  /* Execute the file given on argv[1] */
   const char* filename = argv[1];
-
-  /* Test the API */
-  jsval rval;
-  char* source = read_file(filename);
-  JS_EvaluateScript(cx, global, source, strlen(source), filename, 1, &rval);
-  free(source);
+  JSObject * script = JS_CompileFile(cx, global, filename);
+  if (!script) return 2;
+  JS_ExecuteScript(cx, global, script, NULL);
 
   /* Cleanup. */
   JS_DestroyContext(cx);
