@@ -15,5 +15,5 @@ sudo apt-get install libmozjs185-dev
 ./configure
 make -j4 # or however many cores you have
 # Test it
-./luvmonkey test.js
+./out/Release/luvmonkey test.js
 ```
