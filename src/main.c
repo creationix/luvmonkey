@@ -95,8 +95,7 @@ char* read_file(const char* filename) {
 int main(int argc, const char *argv[])
 {
 
-  if ( argc != 2 )
-  {
+  if ( argc < 2 ) {
     printf( "usage: %s filename\n", argv[0] );
     return 1;
   }
@@ -137,6 +136,16 @@ int main(int argc, const char *argv[])
   /* Create a "uv" namespace for the uv_* functions */
   JSObject* uv = JS_DefineObject(cx, global, "uv", NULL, NULL, 0);
   if (luv_init(cx, uv)) return 1;
+
+  /* Set args as global */
+  JSObject* args = JS_NewArrayObject(cx, 0, NULL);
+  jsval args_val = OBJECT_TO_JSVAL(args);
+  if (!JS_SetProperty(cx, global, "args", &args_val)) return 1;
+  int index;
+  for (index = 0; index < argc; index++) {
+    jsval arg = STRING_TO_JSVAL(JS_NewStringCopyN(cx, argv[index], strlen(argv[index])));
+    if (!JS_SetElement(cx, args, index, &arg)) return 1;
+  }
 
   /* Read the file on argv */
   const char* filename = argv[1];
