@@ -27,7 +27,7 @@
       ],
     },
     {
-      'target_name': 'spiderluv',
+      'target_name': 'luvmonkey',
       'type': 'executable',
 
       'dependencies': [

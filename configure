@@ -11,4 +11,4 @@ $GYP -Dlibrary=static_library   \
      -Icommon.gypi              \
      --depth=$PWD               \
      -f make                    \
-     spiderluv.gyp
+     luvmonkey.gyp
