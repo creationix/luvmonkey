@@ -1,7 +1,6 @@
 #ifndef LUV_TCP_H
 #define LUV_TCP_H
 
-#include "uv.h"
 #include "jsapi.h"
 #include "luv_stream.h"
 #include "helpers.h"
