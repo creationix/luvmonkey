@@ -17,7 +17,7 @@ First download mozilla-central (the repo that contains spidermonkey).  If you ha
 Once downloaded, go to the js folder and build spidermonkey as a static library
 
 ```sh
-cd mozilla-central/js/src
+cd $HOME/mozilla-central/js/src
 autoconf2.13
 ./configure --disable-shared-js
 make -j 4 # or however many cores you have
