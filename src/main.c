@@ -70,7 +70,7 @@ static JSBool compileFile(JSContext *cx, uintN argc, jsval *vp) {
 
   /* TODO: get filename from arg */
   const char* filename = "lib/utils.js";
-  JSObject* script = JS_CompileFile(cx, JS_THIS_OBJECT(cx, vp), filename);
+  JSObject* script = JS_CompileUTF8File(cx, JS_THIS_OBJECT(cx, vp), filename);
   if (!script) {
     return JS_FALSE;
   }
@@ -106,7 +106,7 @@ int main(int argc, const char *argv[])
   cx = JS_NewContext(rt, 8192);
   if (cx == NULL)
       return 1;
-  JS_SetOptions(cx, JSOPTION_VAROBJFIX | JSOPTION_JIT | JSOPTION_METHODJIT);
+  JS_SetOptions(cx, JSOPTION_VAROBJFIX | JSOPTION_METHODJIT);
   JS_SetVersion(cx, JSVERSION_LATEST);
   JS_SetErrorReporter(cx, reportError);
 
@@ -144,7 +144,7 @@ int main(int argc, const char *argv[])
 
   /* Execute the file given on argv[1] */
   const char* filename = argv[1];
-  JSObject * script = JS_CompileFile(cx, global, filename);
+  JSScript* script = JS_CompileUTF8File(cx, global, filename);
   if (!script) return 2;
   JS_ExecuteScript(cx, global, script, NULL);
 

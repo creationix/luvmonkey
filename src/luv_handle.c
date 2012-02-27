@@ -20,16 +20,8 @@ void luv_on_close(uv_handle_t* handle) {
 
 static JSBool luv_close(JSContext *cx, uintN argc, jsval *vp) {
   /* TODO: check that this is instanceof Handle */
-  /*
-  JSBool bp;
-  JS_HasInstance(cx, this, JS_THIS(cx, vp), &bp);
-  if (!JS_InstanceOf(cx, this, &Handle_class, NULL)) {
-    JS_ReportError(cx, "luv_close: this is not instanceof Handle");
-    return JS_FALSE;
-  }
-  */
   uv_handle_t* handle;
-  handle = (uv_handle_t*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+  handle = (uv_handle_t*)JS_GetPrivate(JS_THIS_OBJECT(cx, vp));
 
   uv_close(handle, luv_on_close);
 
