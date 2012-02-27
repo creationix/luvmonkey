@@ -1,5 +1,4 @@
-/luvmonkey
 /out
-/Makefile
-*.Makefile
+/deps
+*Makefile
 *.mk
