@@ -70,7 +70,7 @@ static JSBool compileFile(JSContext *cx, uintN argc, jsval *vp) {
 
   /* TODO: get filename from arg */
   const char* filename = "lib/utils.js";
-  JSObject* script = JS_CompileUTF8File(cx, JS_THIS_OBJECT(cx, vp), filename);
+  JSScript* script = JS_CompileUTF8File(cx, JS_THIS_OBJECT(cx, vp), filename);
   if (!script) {
     return JS_FALSE;
   }
