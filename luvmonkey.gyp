@@ -18,7 +18,7 @@
       'include_dirs': [
         'src',
         'deps/uv/src/ares',
-        '/usr/include/js'
+        '/usr/local/include/js'
       ],
       'sources': [
         'src/luv_handle.c',
@@ -41,10 +41,16 @@
       ],
       'include_dirs': [
         'src',
-        '/usr/include/js'
+        '/usr/local/include/js'
+      ],
+      'ldflags': [
+        "-L/usr/local/lib"
       ],
       'libraries': [
-        '-lmozjs185', '-lm', '-lrt',
+        "-lmozjs",
+        "-ldl",
+        "-lm",
+        "-ltr"
       ],
       'sources': [
         'src/main.c',
