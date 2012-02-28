@@ -6,6 +6,7 @@
 var bindings = alpha.bindings;
 var executeFile = alpha.executeFile;
 var global = alpha.global;
+global.global = global;
 global.args = alpha.args;
 global.print = alpha.print;
 global.exit = alpha.exit;
@@ -36,6 +37,7 @@ function loadModule(filename) {
     __dirname: { value: dirname },
     require: { value: require }
   });
+  // TODO: figure out why local variables in modules are getting put on global.
   executeFile(filename, sandbox);
   return module.exports;
 }

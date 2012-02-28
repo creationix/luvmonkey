@@ -1,4 +1,6 @@
+
 var p = require('utils').prettyPrint;
+p(global);
 var uv = require('uv');
 
 function bytesToHuman(bytes) {
@@ -63,3 +65,4 @@ server.keepalive(1, 500);
 server.bind("0.0.0.0", 8080);
 server.close()
 
+p("typeof null", typeof null);
