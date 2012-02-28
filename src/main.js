@@ -18,14 +18,9 @@ var executeFile = alpha.executeFile;
 var moduleCache = {};
 
 var uv = realRequire('uv');
+// Assumes the executible is in $PREFIX/bin/luvmonkey and calculates prefix backwards
+var prefix = uv.exepath().match(/^(.*)(\/[^\/]+){2}$/)[1] + "/";
 
-function loadBuiltin(name) {
-  if (!bindings.hasOwnProperty(name)) return false;
-  if (moduleCache.hasOwnProperty(name)) {
-    return moduleCache[name];
-  }
-  return moduleCache[name] = bindings[name]();
-}
 function loadModule(filename) {
   var dirname = filename.substr(0, filename.lastIndexOf("/"));
   var require = function require(name) {
@@ -49,13 +44,19 @@ function loadModule(filename) {
 
 function realResolve(name, base) {
   // TODO: put prefix here once makefile puts binary in bin folder
-  // var prefix = uv.exepath().match(/^(.*)\/[^\/]+\/[^\/]+$/)[1] + "/";
   return "lib/luvmonkey/" + name + ".js";
 }
 
 function realRequire(name, base) {
-  var module = loadBuiltin(name);
-  if (module) return module;
+  // First look for built-in C bindings (like 'uv')
+  if (bindings.hasOwnProperty(name)) {
+    if (moduleCache.hasOwnProperty(name)) {
+      return moduleCache[name];
+    }
+    return moduleCache[name] = bindings[name]();
+  }
+
+  // Then look for javascript modules
   var filename = realResolve(name, base);
   if (moduleCache.hasOwnProperty(filename)) {
     return moduleCache[filename];
