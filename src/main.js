@@ -1,18 +1,16 @@
 // Keep locals out of global scope
 (function () {
+"use strict"
 
 // Copy the interesting bits from alpha to where we want them
 var bindings = alpha.bindings;
 var executeFile = alpha.executeFile;
-(function() {
-  var global = this;
-  global.global = global;
-  global.args = alpha.args;
-  global.print = alpha.print;
-  global.exit = alpha.exit;
-  global.printErr = alpha.printErr;
-  delete global.alpha;
-}());
+var global = alpha.global;
+global.args = alpha.args;
+global.print = alpha.print;
+global.exit = alpha.exit;
+global.printErr = alpha.printErr;
+delete global.alpha;
 
 // This is needed before we can require anything
 var moduleCache = {};
@@ -23,7 +21,7 @@ var prefix = uv.exepath().match(/^(.*)(\/[^\/]+){2}$/)[1] + "/";
 
 function loadModule(filename) {
   var dirname = filename.substr(0, filename.lastIndexOf("/"));
-  var require = function require(name) {
+  function require(name) {
     return realRequire(name, dirname);
   }
   require.resolve = function resolve(name) {
@@ -31,7 +29,7 @@ function loadModule(filename) {
   }
   var exports = moduleCache[filename];
   var module = { exports: exports };
-  var sandbox = Object.create(this, {
+  var sandbox = Object.create(global, {
     exports: { value: exports },
     module: { value: module },
     __filename: { value: filename },

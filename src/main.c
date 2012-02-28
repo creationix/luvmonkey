@@ -143,7 +143,11 @@ int main(int argc, const char *argv[])
   JSObject* bindings = JS_DefineObject(cx, alpha, "bindings", NULL, NULL, 0);
   if (!JS_DefineFunctions(cx, bindings, binding_functions)) return 1;
 
-  /* Set args as global */
+  /* Set global on alpha */
+  jsval global_val = OBJECT_TO_JSVAL(global);
+  if (!JS_SetProperty(cx, alpha, "global", &global_val)) return 1;
+
+  /* Set args on alpha */
   JSObject* args = JS_NewArrayObject(cx, 0, NULL);
   jsval args_val = OBJECT_TO_JSVAL(args);
   if (!JS_SetProperty(cx, alpha, "args", &args_val)) return 1;
