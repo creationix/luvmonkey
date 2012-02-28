@@ -2,6 +2,7 @@
 #include "jsapi.h"
 #include "luv.h"
 #include "main.h"
+#include "js_scripts.h"
 
 /* The class of the global object. */
 static JSClass global_class = {
@@ -59,23 +60,31 @@ PrintErr(JSContext *cx, uintN argc, jsval *vp)
   return PrintInternal(cx, argc, vp, stderr);
 }
 
-static JSFunctionSpec global_functions[] = {
-  JS_FS("print", Print, 0, 0),
-  JS_FS("printErr", PrintErr, 0, 0),
-  JS_FS_END
-};
+static JSBool Exit(JSContext *cx, uintN argc, jsval *vp) {
+  int exitCode;
+  if (!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "i", &exitCode)) {
+    return JS_FALSE;
+  }
+  exit(exitCode);
+}
 
+static JSBool executeFile(JSContext *cx, uintN argc, jsval *vp) {
 
-static JSBool compileFile(JSContext *cx, uintN argc, jsval *vp) {
+  JSString* str;
+  JSObject* obj;
+  if (!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "So", &str, &obj)) {
+    return JS_FALSE;
+  }
+  char *filename = JS_EncodeString(cx, str);
 
-  /* TODO: get filename from arg */
-  const char* filename = "lib/utils.js";
   JSScript* script = JS_CompileUTF8File(cx, JS_THIS_OBJECT(cx, vp), filename);
+  JS_free(cx, filename);
   if (!script) {
     return JS_FALSE;
   }
+
   jsval result;
-  if (!JS_ExecuteScript(cx, JS_GetGlobalObject(cx), script, &result)) {
+  if (!JS_ExecuteScript(cx, obj, script, &result)) {
     return JS_FALSE;
   }
 
@@ -83,19 +92,26 @@ static JSBool compileFile(JSContext *cx, uintN argc, jsval *vp) {
   return JS_TRUE;
 }
 
+static JSFunctionSpec global_functions[] = {
+  JS_FS("print", Print, 0, 0),
+  JS_FS("printErr", PrintErr, 0, 0),
+  JS_FS("executeFile", executeFile, 2, 0),
+  JS_FS("exit", Exit, 1, 0),
+  JS_FS_END
+};
+
+static JSFunctionSpec binding_functions[] = {
+  JS_FS("uv", luv_init, 0, 0),
+  JS_FS_END
+};
 
 int main(int argc, const char *argv[])
 {
 
-  if ( argc < 2 ) {
-    printf( "usage: %s filename\n", argv[0] );
-    return 1;
-  }
-
   /* JS variables. */
-  JSRuntime *rt;
-  JSContext *cx;
-  JSObject  *global;
+  JSRuntime* rt;
+  JSContext* cx;
+  JSObject* global;
 
   /* Create a JS runtime. */
   rt = JS_NewRuntime(8L * 1024L * 1024L);
@@ -118,35 +134,27 @@ int main(int argc, const char *argv[])
      like Object and Array. */
   if (!JS_InitStandardClasses(cx, global)) return 1;
 
+  JSObject* alpha = JS_DefineObject(cx, global, "alpha", NULL, NULL, 0);
+
   /* Attach the global functions */
-  if (!JS_DefineFunctions(cx, global, global_functions)) return 1;
+  if (!JS_DefineFunctions(cx, alpha, global_functions)) return 1;
 
-  /* Make global reference itself at "global" */
-  jsval global_val = OBJECT_TO_JSVAL(global);
-  if (!JS_SetProperty(cx, global, "global", &global_val)) return 1;
-
-  /* Create a "uv" namespace for the uv_* functions */
-  JSObject* uv = JS_DefineObject(cx, global, "uv", NULL, NULL, 0);
-  if (luv_init(cx, uv)) return 1;
-
-  /* define a compileFile function */
-  JS_DefineFunction(cx, global, "compileFile", compileFile, 1, 0);
+  /* expose the binding functions for require to use */
+  JSObject* bindings = JS_DefineObject(cx, alpha, "bindings", NULL, NULL, 0);
+  if (!JS_DefineFunctions(cx, bindings, binding_functions)) return 1;
 
   /* Set args as global */
   JSObject* args = JS_NewArrayObject(cx, 0, NULL);
   jsval args_val = OBJECT_TO_JSVAL(args);
-  if (!JS_SetProperty(cx, global, "args", &args_val)) return 1;
+  if (!JS_SetProperty(cx, alpha, "args", &args_val)) return 1;
   int index;
   for (index = 0; index < argc; index++) {
     jsval arg = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, argv[index]));
     if (!JS_SetElement(cx, args, index, &arg)) return 1;
   }
 
-  /* Execute the file given on argv[1] */
-  const char* filename = argv[1];
-  JSScript* script = JS_CompileUTF8File(cx, global, filename);
-  if (!script) return 2;
-  JS_ExecuteScript(cx, global, script, NULL);
+  /* Bootstrap using the code in main.js */
+  JS_EvaluateScript(cx, global, embedded_src_main_js, strlen(embedded_src_main_js), "main.js", 1, NULL);
 
   /* Cleanup. */
   JS_DestroyContext(cx);

@@ -12,7 +12,6 @@ static JSClass Tcp_class = {
 
 
 static JSBool Tcp_constructor(JSContext *cx, uintN argc, jsval *vp) {
-  printf("Tcp instance getting created\n");
   JSObject* obj = JS_NewObject(cx, &Tcp_class, Tcp_prototype, NULL);
 
   uv_tcp_t* handle = malloc(sizeof(uv_tcp_t));
@@ -25,7 +24,6 @@ static JSBool Tcp_constructor(JSContext *cx, uintN argc, jsval *vp) {
 
 /* Free the uv_tcp_t* when the object gets GCed */
 static void Tcp_finalize(JSContext *cx, JSObject *this) {
-  printf("Tcp instance getting freed\n");
   free(JS_GetPrivate(this));
 }
 

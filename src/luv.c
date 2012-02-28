@@ -29,12 +29,23 @@ static JSBool luv_unref(JSContext *cx, uintN argc, jsval *vp) {
 static JSBool luv_exepath(JSContext *cx, uintN argc, jsval *vp) {
   size_t size = 2*PATH_MAX;
   char exec_path[2*PATH_MAX];
-  if (uv_exepath(exec_path, &size)) {
-    uv_err_t err = uv_last_error(uv_default_loop());
-    JS_ReportError(cx, "uv_exepath: %s", uv_strerror(err));
-    return JS_FALSE;
-  }
+  UV_CALL(uv_exepath, exec_path, &size);
+
   JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyN(cx, exec_path, size)));
+  return JS_TRUE;
+}
+
+static JSBool luv_cwd(JSContext *cx, uintN argc, jsval *vp) {
+  size_t size = 2*PATH_MAX;
+  char cwd_path[2*PATH_MAX];
+
+  uv_err_t err = uv_cwd(cwd_path, size);
+  if (err.code != UV_OK) {
+    JS_ReportError(cx, "uv_cwd: %s", uv_strerror(err)); \
+    return JS_FALSE;                                       \
+  }
+
+  JS_SET_RVAL(cx, vp, STRING_TO_JSVAL(JS_NewStringCopyN(cx, cwd_path, strlen(cwd_path))));
   return JS_TRUE;
 }
 
@@ -74,6 +85,7 @@ static JSFunctionSpec luv_functions[] = {
   JS_FS("ref", luv_ref, 0, JSPROP_ENUMERATE),
   JS_FS("unref", luv_unref, 0, JSPROP_ENUMERATE),
   JS_FS("exepath", luv_exepath, 0, JSPROP_ENUMERATE),
+  JS_FS("cwd", luv_cwd, 0, JSPROP_ENUMERATE),
   JS_FS("get_free_memory", luv_get_free_memory, 0, JSPROP_ENUMERATE),
   JS_FS("get_total_memory", luv_get_total_memory, 0, JSPROP_ENUMERATE),
   JS_FS("loadavg", luv_loadavg, 0, JSPROP_ENUMERATE),
@@ -81,24 +93,22 @@ static JSFunctionSpec luv_functions[] = {
   JS_FS_END
 };
 
-int luv_init(JSContext* cx, JSObject *uv) {
+JSBool luv_init(JSContext *cx, uintN argc, jsval *vp) {
+  JSObject* uv = JS_NewObject(cx, NULL, NULL, NULL);
   if (!JS_DefineFunctions(cx, uv, luv_functions)) {
-    fprintf(stderr, "Error in define functions\n");
-    return 1;
+    return JS_FALSE;
   }
   if (luv_handle_init(cx, uv)) {
-    fprintf(stderr, "Error in handle_init\n");
-    return 1;
+    return JS_FALSE;
   }
   if (luv_stream_init(cx, uv)) {
-    fprintf(stderr, "Error in stream_init\n");
-    return 1;
+    return JS_FALSE;
   }
   if (luv_tcp_init(cx, uv)) {
-    fprintf(stderr, "Error in tcp_init\n");
-    return 1;
+    return JS_FALSE;
   }
-  return 0;
-}
 
+  JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(uv));
+  return JS_TRUE;
+}
 
