@@ -7,4 +7,10 @@ JSObject* Handle_prototype;
 
 int luv_handle_init(JSContext* cx, JSObject *uv);
 
+typedef struct {
+  JSContext* cx;
+  JSObject* obj;
+} luv_ref_t;
+
+
 #endif
