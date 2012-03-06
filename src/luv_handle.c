@@ -21,7 +21,7 @@ void luv_on_close(uv_handle_t* handle) {
 static JSBool luv_close(JSContext *cx, uintN argc, jsval *vp) {
   /* TODO: check that this is instanceof Handle */
   uv_handle_t* handle;
-  handle = (uv_handle_t*)JS_GetPrivate(JS_THIS_OBJECT(cx, vp));
+  handle = (uv_handle_t*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
 
   uv_close(handle, luv_on_close);
 

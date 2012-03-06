@@ -50,19 +50,20 @@
       'include_dirs': [
         'src',
         'deps/uv/src/ares',
-        'deps/mozilla-central/js/src/dist/include',
+        '/usr/include/js',
         '<(SHARED_INTERMEDIATE_DIR)' # for js_scripts.h
       ],
       'libraries': [
         "-ldl",
         "-lm",
         "-lrt",
-        'deps/mozilla-central/js/src/libjs_static.a',
+        '-lmozjs185',
       ],
       'sources': [
         'src/luv_handle.c',
         'src/luv_stream.c',
         'src/luv_tcp.c',
+        'src/luv_timer.c',
         'src/luv.c',
         'src/main.c',
       ],

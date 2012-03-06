@@ -3,6 +3,7 @@
 #include "luv_handle.h"
 #include "luv_stream.h"
 #include "luv_tcp.h"
+#include "luv_timer.h"
 
 #ifndef PATH_MAX
 #define PATH_MAX (8096)
@@ -105,6 +106,9 @@ JSBool luv_init(JSContext *cx, uintN argc, jsval *vp) {
     return JS_FALSE;
   }
   if (luv_tcp_init(cx, uv)) {
+    return JS_FALSE;
+  }
+  if (luv_timer_init(cx, uv)) {
     return JS_FALSE;
   }
 

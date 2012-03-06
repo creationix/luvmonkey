@@ -77,7 +77,7 @@ static JSBool executeFile(JSContext *cx, uintN argc, jsval *vp) {
   }
   char *filename = JS_EncodeString(cx, str);
 
-  JSScript* script = JS_CompileUTF8File(cx, JS_THIS_OBJECT(cx, vp), filename);
+  JSObject* script = JS_CompileFile(cx, JS_THIS_OBJECT(cx, vp), filename);
   JS_free(cx, filename);
   if (!script) {
     return JS_FALSE;

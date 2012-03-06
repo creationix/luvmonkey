@@ -1,21 +1,21 @@
 #include "uv.h"
-#include "luv_tcp.h"
+#include "luv_timer.h"
 
-static void Tcp_finalize(JSContext *cx, JSObject *obj);
+static void Timer_finalize(JSContext *cx, JSObject *obj);
 
-static JSClass Tcp_class = {
-  "Tcp", JSCLASS_HAS_PRIVATE,
+static JSClass Timer_class = {
+  "Timer", JSCLASS_HAS_PRIVATE,
   JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
-  JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, Tcp_finalize,
+  JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, Timer_finalize,
   JSCLASS_NO_OPTIONAL_MEMBERS
 };
 
 
-static JSBool Tcp_constructor(JSContext *cx, uintN argc, jsval *vp) {
-  JSObject* obj = JS_NewObject(cx, &Tcp_class, Tcp_prototype, NULL);
+static JSBool Timer_constructor(JSContext *cx, uintN argc, jsval *vp) {
+  JSObject* obj = JS_NewObject(cx, &Timer_class, Timer_prototype, NULL);
 
-  uv_tcp_t* handle = malloc(sizeof(uv_tcp_t));
-  uv_tcp_init(uv_default_loop(), handle);
+  uv_timer_t* handle = malloc(sizeof(uv_timer_t));
+  uv_timer_init(uv_default_loop(), handle);
   JS_SetPrivate(cx, obj, handle);
 
   JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
@@ -23,16 +23,15 @@ static JSBool Tcp_constructor(JSContext *cx, uintN argc, jsval *vp) {
 }
 
 /* Free the uv_tcp_t* when the object gets GCed */
-static void Tcp_finalize(JSContext *cx, JSObject *this) {
+static void Timer_finalize(JSContext *cx, JSObject *this) {
   free(JS_GetPrivate(cx, this));
 }
-
+/*
 static JSBool luv_tcp_bind(JSContext *cx, uintN argc, jsval *vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_tcp_t* handle;
   handle = (uv_tcp_t*)JS_GetInstancePrivate(cx, this, &Tcp_class, NULL);
 
-  /* TODO: don't hardcode */
   const char* host = "0.0.0.0";
   int port = 8080;
 
@@ -49,7 +48,6 @@ static JSBool luv_tcp_nodelay(JSContext *cx, uintN argc, jsval *vp) {
   uv_tcp_t* handle;
   handle = (uv_tcp_t*)JS_GetInstancePrivate(cx, this, &Tcp_class, NULL);
 
-  /* TODO: don't hardcode */
   int enable = 1;
 
   UV_CALL(uv_tcp_nodelay, handle, enable);
@@ -63,7 +61,6 @@ static JSBool luv_tcp_keepalive(JSContext *cx, uintN argc, jsval *vp) {
   uv_tcp_t* handle;
   handle = (uv_tcp_t*)JS_GetInstancePrivate(cx, this, &Tcp_class, NULL);
 
-  /* TODO: don't hardcode */
   int enable = 1;
   int delay = 500;
 
@@ -72,17 +69,15 @@ static JSBool luv_tcp_keepalive(JSContext *cx, uintN argc, jsval *vp) {
   JS_SET_RVAL(cx, vp, JSVAL_VOID);
   return JS_TRUE;
 }
+*/
 
-static JSFunctionSpec Tcp_methods[] = {
-  JS_FS("bind", luv_tcp_bind, 0, 0),
-  JS_FS("nodelay", luv_tcp_nodelay, 0, 0),
-  JS_FS("keepalive", luv_tcp_keepalive, 0, 0),
+static JSFunctionSpec Timer_methods[] = {
   JS_FS_END
 };
 
-int luv_tcp_init(JSContext* cx, JSObject *uv) {
-  Tcp_prototype = JS_InitClass(cx, uv, Stream_prototype,
-    &Tcp_class, Tcp_constructor, 0, 
-    NULL, Tcp_methods, NULL, NULL);
+int luv_timer_init(JSContext* cx, JSObject *uv) {
+  Timer_prototype = JS_InitClass(cx, uv, Handle_prototype,
+    &Timer_class, Timer_constructor, 0, 
+    NULL, Timer_methods, NULL, NULL);
   return 0;
 }
