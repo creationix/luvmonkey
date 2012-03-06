@@ -1,8 +1,8 @@
 {
   'variables': {
     # 'visibility%': 'hidden',         # V8's visibility setting
-    'target_arch%': 'ia32',          # set v8's target architecture
-    'host_arch%': 'ia32',            # set v8's host architecture
+    'target_arch%': 'amd64',          # set v8's target architecture
+    'host_arch%': 'amd64',            # set v8's host architecture
     # 'want_separate_host_toolset': 0, # V8 should not build target and host
     # 'library%': 'static_library',    # allow override to 'shared_library' for DLL/.so builds
     # 'component%': 'static_library',  # NB. these names match with what V8 expects
@@ -10,11 +10,11 @@
   },
 
   'target_defaults': {
-    'default_configuration': 'Release',
+    'default_configuration': 'Debug',
     'configurations': {
       'Debug': {
         # This breaks the linker since the mozjs library isn't a debug build
-        #'defines': [ 'DEBUG', '_DEBUG' ],
+        'defines': [ 'DEBUG', '_DEBUG' ],
         'cflags': [ '-g', '-O0' ],
         'conditions': [
           ['target_arch=="x64"', {

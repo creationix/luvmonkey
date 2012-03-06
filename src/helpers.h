@@ -9,5 +9,9 @@
     return JS_FALSE;                                       \
   }
 
+#define LUV_REF(cx, obj)                                   \
+  (luv_ref_t*)malloc(sizeof(luv_ref_t));                   \
+  ref->cx = cx;                                            \
+  ref->obj = obj;
 
 #endif

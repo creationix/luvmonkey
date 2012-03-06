@@ -9,25 +9,25 @@
 #define PATH_MAX (8096)
 #endif
 
-static JSBool luv_run(JSContext *cx, uintN argc, jsval *vp) {
+static JSBool luv_run(JSContext *cx, unsigned argc, jsval *vp) {
   uv_run(uv_default_loop());
   JS_SET_RVAL(cx, vp, JSVAL_VOID);
   return JS_TRUE;
 }
 
-static JSBool luv_ref(JSContext *cx, uintN argc, jsval *vp) {
+static JSBool luv_ref(JSContext *cx, unsigned argc, jsval *vp) {
   uv_ref(uv_default_loop());
   JS_SET_RVAL(cx, vp, JSVAL_VOID);
   return JS_TRUE;
 }
 
-static JSBool luv_unref(JSContext *cx, uintN argc, jsval *vp) {
+static JSBool luv_unref(JSContext *cx, unsigned argc, jsval *vp) {
   uv_unref(uv_default_loop());
   JS_SET_RVAL(cx, vp, JSVAL_VOID);
   return JS_TRUE;
 }
 
-static JSBool luv_exepath(JSContext *cx, uintN argc, jsval *vp) {
+static JSBool luv_exepath(JSContext *cx, unsigned argc, jsval *vp) {
   size_t size = 2*PATH_MAX;
   char exec_path[2*PATH_MAX];
   UV_CALL(uv_exepath, exec_path, &size);
@@ -36,7 +36,7 @@ static JSBool luv_exepath(JSContext *cx, uintN argc, jsval *vp) {
   return JS_TRUE;
 }
 
-static JSBool luv_cwd(JSContext *cx, uintN argc, jsval *vp) {
+static JSBool luv_cwd(JSContext *cx, unsigned argc, jsval *vp) {
   size_t size = 2*PATH_MAX;
   char cwd_path[2*PATH_MAX];
 
@@ -50,19 +50,19 @@ static JSBool luv_cwd(JSContext *cx, uintN argc, jsval *vp) {
   return JS_TRUE;
 }
 
-static JSBool luv_get_free_memory(JSContext *cx, uintN argc, jsval *vp) {
+static JSBool luv_get_free_memory(JSContext *cx, unsigned argc, jsval *vp) {
   uint64_t size = uv_get_free_memory();
   JS_SET_RVAL(cx, vp, DOUBLE_TO_JSVAL(size));
   return JS_TRUE;
 }
 
-static JSBool luv_get_total_memory(JSContext *cx, uintN argc, jsval *vp) {
+static JSBool luv_get_total_memory(JSContext *cx, unsigned argc, jsval *vp) {
   uint64_t size = uv_get_total_memory();
   JS_SET_RVAL(cx, vp, DOUBLE_TO_JSVAL(size));
   return JS_TRUE;
 }
 
-static JSBool luv_loadavg(JSContext *cx, uintN argc, jsval *vp) {
+static JSBool luv_loadavg(JSContext *cx, unsigned argc, jsval *vp) {
   double avg[3];
   uv_loadavg(avg);
   jsval values[] = {
@@ -74,7 +74,7 @@ static JSBool luv_loadavg(JSContext *cx, uintN argc, jsval *vp) {
   return JS_TRUE;
 }
 
-static JSBool luv_uptime(JSContext *cx, uintN argc, jsval *vp) {
+static JSBool luv_uptime(JSContext *cx, unsigned argc, jsval *vp) {
   double uptime;
   uv_uptime(&uptime);
   JS_SET_RVAL(cx, vp, DOUBLE_TO_JSVAL(uptime));
@@ -94,7 +94,7 @@ static JSFunctionSpec luv_functions[] = {
   JS_FS_END
 };
 
-JSBool luv_init(JSContext *cx, uintN argc, jsval *vp) {
+JSBool luv_init(JSContext *cx, unsigned argc, jsval *vp) {
   JSObject* uv = JS_NewObject(cx, NULL, NULL, NULL);
   if (!JS_DefineFunctions(cx, uv, luv_functions)) {
     return JS_FALSE;

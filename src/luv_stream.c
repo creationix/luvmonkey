@@ -8,14 +8,14 @@ static JSClass Stream_class = {
   JSCLASS_NO_OPTIONAL_MEMBERS
 };
 
-static JSBool Stream_constructor(JSContext *cx, uintN argc, jsval *vp) {
+static JSBool Stream_constructor(JSContext *cx, unsigned argc, jsval *vp) {
   JSObject* obj = JS_NewObject(cx, &Stream_class, Stream_prototype, NULL);
   JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
   return JS_TRUE;
 }
 
 
-static JSBool luv_write(JSContext *cx, uintN argc, jsval *vp) {
+static JSBool luv_write(JSContext *cx, unsigned argc, jsval *vp) {
   printf("TODO: Implement luv_write\n");
   return JS_TRUE;
 }

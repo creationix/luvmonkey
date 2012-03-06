@@ -11,18 +11,15 @@ static JSClass Timer_class = {
 };
 
 
-static JSBool Timer_constructor(JSContext *cx, uintN argc, jsval *vp) {
+static JSBool Timer_constructor(JSContext *cx, unsigned argc, jsval *vp) {
   JSObject* obj = JS_NewObject(cx, &Timer_class, Timer_prototype, NULL);
 
   uv_timer_t* handle = malloc(sizeof(uv_timer_t));
   uv_timer_init(uv_default_loop(), handle);
-  JS_SetPrivate(cx, obj, handle);
+  JS_SetPrivate(obj, handle);
 
   /* Store a reference to the object in the handle */
-  luv_ref_t* ref;
-  ref = (luv_ref_t*)malloc(sizeof(luv_ref_t));
-  ref->cx = cx;
-  ref->obj = obj;
+  luv_ref_t* ref = LUV_REF(cx, obj);
   handle->data = ref;
 
   JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
@@ -31,34 +28,20 @@ static JSBool Timer_constructor(JSContext *cx, uintN argc, jsval *vp) {
 
 /* Free the uv_tcp_t* when the object gets GCed */
 static void Timer_finalize(JSContext *cx, JSObject *this) {
-  free(JS_GetPrivate(cx, this));
+  free(JS_GetPrivate(this));
 }
 
 void luv_on_timer(uv_timer_t* handle, int status) {
-  printf("luv_on_timer\n");
   luv_ref_t* ref;
   ref = (luv_ref_t*)handle->data;
-  JSContext* cx = ref->cx;
-  JSObject* this = ref->obj;
-
-  jsval callback_val;
-  if (!JS_GetProperty(cx, this, "on_timer", &callback_val)) {
-    printf("ERROR getting on_timer prop\n");
-    return;
+  if (!luv_call_callback(ref->cx, ref->obj, "onTimer", 0, NULL)) {
+    /* TODO: report properly */
+    printf("Error in onTimer callback\n");
   }
-
-  if (JSVAL_IS_OBJECT(callback_val)) {
-    printf("calling!\n");
-    if (!JS_CallFunctionValue(cx, NULL, callback_val, 0, NULL, NULL)) {
-      printf("Error in call\n");
-      return;
-    }
-  }
-
 }
 
 
-static JSBool luv_timer_start(JSContext* cx, uintN argc, jsval *vp) {
+static JSBool luv_timer_start(JSContext* cx, unsigned argc, jsval *vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_timer_t* handle;
   handle = (uv_timer_t*)JS_GetInstancePrivate(cx, this, &Timer_class, NULL);
@@ -70,8 +53,7 @@ static JSBool luv_timer_start(JSContext* cx, uintN argc, jsval *vp) {
     return JS_FALSE;
   }
 
-  jsval callback_val = OBJECT_TO_JSVAL(callback);
-  if (!JS_SetProperty(cx, this, "on_timer", &callback_val)) return 1;
+  if (!luv_store_callback(cx, this, "onTimer", callback)) return JS_FALSE;
 
   UV_CALL(uv_timer_start, handle, luv_on_timer, timeout, repeat);
 
@@ -79,7 +61,7 @@ static JSBool luv_timer_start(JSContext* cx, uintN argc, jsval *vp) {
   return JS_TRUE;
 }
 
-static JSBool luv_timer_stop(JSContext* cx, uintN argc, jsval* vp) {
+static JSBool luv_timer_stop(JSContext* cx, unsigned argc, jsval* vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_timer_t* handle;
   handle = (uv_timer_t*)JS_GetInstancePrivate(cx, this, &Timer_class, NULL);
@@ -90,7 +72,7 @@ static JSBool luv_timer_stop(JSContext* cx, uintN argc, jsval* vp) {
   return JS_TRUE;
 }
 
-static JSBool luv_timer_again(JSContext* cx, uintN argc, jsval* vp) {
+static JSBool luv_timer_again(JSContext* cx, unsigned argc, jsval* vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_timer_t* handle;
   handle = (uv_timer_t*)JS_GetInstancePrivate(cx, this, &Timer_class, NULL);
@@ -101,7 +83,7 @@ static JSBool luv_timer_again(JSContext* cx, uintN argc, jsval* vp) {
   return JS_TRUE;
 }
 
-static JSBool luv_timer_set_repeat(JSContext* cx, uintN argc, jsval* vp) {
+static JSBool luv_timer_set_repeat(JSContext* cx, unsigned argc, jsval* vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_timer_t* handle;
   handle = (uv_timer_t*)JS_GetInstancePrivate(cx, this, &Timer_class, NULL);
@@ -117,7 +99,7 @@ static JSBool luv_timer_set_repeat(JSContext* cx, uintN argc, jsval* vp) {
   return JS_TRUE;
 }
 
-static JSBool luv_timer_get_repeat(JSContext* cx, uintN argc, jsval* vp) {
+static JSBool luv_timer_get_repeat(JSContext* cx, unsigned argc, jsval* vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_timer_t* handle;
   handle = (uv_timer_t*)JS_GetInstancePrivate(cx, this, &Timer_class, NULL);

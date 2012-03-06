@@ -8,20 +8,32 @@ static JSClass Handle_class = {
   JSCLASS_NO_OPTIONAL_MEMBERS
 };
 
-static JSBool Handle_constructor(JSContext *cx, uintN argc, jsval *vp) {
+static JSBool Handle_constructor(JSContext *cx, unsigned argc, jsval *vp) {
   JSObject* obj = JS_NewObject(cx, &Handle_class, Handle_prototype, NULL);
   JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
   return JS_TRUE;
 }
 
 void luv_on_close(uv_handle_t* handle) {
-  printf("TODO: luv_on_close\n");
+  luv_ref_t* ref;
+  ref = (luv_ref_t*)handle->data;
+  if (!luv_call_callback(ref->cx, ref->obj, "onClose", 0, NULL)) {
+    /* TODO: report properly */
+    printf("Error in onClose callback\n");
+  }
 }
 
-static JSBool luv_close(JSContext *cx, uintN argc, jsval *vp) {
-  /* TODO: check that this is instanceof Handle */
+static JSBool luv_close(JSContext *cx, unsigned argc, jsval *vp) {
+  JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_handle_t* handle;
-  handle = (uv_handle_t*)JS_GetPrivate(cx, JS_THIS_OBJECT(cx, vp));
+  handle = (uv_handle_t*)JS_GetPrivate(this);
+
+  JSObject* callback;
+  if (!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "o", &callback)) {
+    return JS_FALSE;
+  }
+
+  if (!luv_store_callback(cx, this, "onClose", callback)) return JS_FALSE;
 
   uv_close(handle, luv_on_close);
 
@@ -39,4 +51,24 @@ int luv_handle_init(JSContext* cx, JSObject *uv) {
     &Handle_class, Handle_constructor, 0, 
     NULL, Handle_methods, NULL, NULL);
   return 0;
+}
+
+/* Store an async callback in an object and put the object in the gc root for safekeeping */
+JSBool luv_store_callback(JSContext* cx, JSObject *this, const char* name, JSObject* callback) {
+  if (!JS_AddObjectRoot(cx, &this)) return JS_FALSE;
+  jsval callback_val = OBJECT_TO_JSVAL(callback);
+  return JS_SetProperty(cx, this, name, &callback_val);
+}
+
+/* Call a callback stored in an object and free it from the gc root */
+JSBool luv_call_callback(JSContext* cx, JSObject *this, const char* name, unsigned argc, jsval* argv) {
+  jsval callback_val;
+  JSBool ret = JS_GetProperty(cx, this, name, &callback_val);
+
+  if (ret && JSVAL_IS_OBJECT(callback_val) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(callback_val))) {
+    jsval result;
+    ret = JS_CallFunctionValue(cx, this, callback_val, argc, argv, &result);
+  }
+  JS_RemoveObjectRoot(cx, &this);
+  return ret;
 }

@@ -3,6 +3,6 @@
 
 #include "jsapi.h"
 
-JSBool luv_init(JSContext *cx, uintN argc, jsval *vp);
+JSBool luv_init(JSContext *cx, unsigned argc, jsval *vp);
 
 #endif

@@ -22,10 +22,10 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 }
 
 static JSBool
-PrintInternal(JSContext *cx, uintN argc, jsval *vp, FILE *file)
+PrintInternal(JSContext *cx, unsigned argc, jsval *vp, FILE *file)
 {
   jsval *argv;
-  uintN i;
+  int i;
   JSString *str;
   char *bytes;
 
@@ -49,18 +49,18 @@ PrintInternal(JSContext *cx, uintN argc, jsval *vp, FILE *file)
 }
 
 static JSBool
-Print(JSContext *cx, uintN argc, jsval *vp)
+Print(JSContext *cx, unsigned argc, jsval *vp)
 {
   return PrintInternal(cx, argc, vp, stdout);
 }
 
 static JSBool
-PrintErr(JSContext *cx, uintN argc, jsval *vp)
+PrintErr(JSContext *cx, unsigned argc, jsval *vp)
 {
   return PrintInternal(cx, argc, vp, stderr);
 }
 
-static JSBool Exit(JSContext *cx, uintN argc, jsval *vp) {
+static JSBool Exit(JSContext *cx, unsigned argc, jsval *vp) {
   int exitCode;
   if (!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "i", &exitCode)) {
     return JS_FALSE;
@@ -68,7 +68,7 @@ static JSBool Exit(JSContext *cx, uintN argc, jsval *vp) {
   exit(exitCode);
 }
 
-static JSBool executeFile(JSContext *cx, uintN argc, jsval *vp) {
+static JSBool executeFile(JSContext *cx, unsigned argc, jsval *vp) {
 
   JSString* str;
   JSObject* obj;
@@ -77,7 +77,7 @@ static JSBool executeFile(JSContext *cx, uintN argc, jsval *vp) {
   }
   char *filename = JS_EncodeString(cx, str);
 
-  JSObject* script = JS_CompileFile(cx, JS_THIS_OBJECT(cx, vp), filename);
+  JSScript* script = JS_CompileUTF8File(cx, JS_THIS_OBJECT(cx, vp), filename);
   JS_free(cx, filename);
   if (!script) {
     return JS_FALSE;

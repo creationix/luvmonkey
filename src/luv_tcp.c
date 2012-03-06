@@ -11,12 +11,12 @@ static JSClass Tcp_class = {
 };
 
 
-static JSBool Tcp_constructor(JSContext *cx, uintN argc, jsval *vp) {
+static JSBool Tcp_constructor(JSContext *cx, unsigned argc, jsval *vp) {
   JSObject* obj = JS_NewObject(cx, &Tcp_class, Tcp_prototype, NULL);
 
   uv_tcp_t* handle = malloc(sizeof(uv_tcp_t));
   uv_tcp_init(uv_default_loop(), handle);
-  JS_SetPrivate(cx, obj, handle);
+  JS_SetPrivate(obj, handle);
 
   JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
   return JS_TRUE;
@@ -24,10 +24,10 @@ static JSBool Tcp_constructor(JSContext *cx, uintN argc, jsval *vp) {
 
 /* Free the uv_tcp_t* when the object gets GCed */
 static void Tcp_finalize(JSContext *cx, JSObject *this) {
-  free(JS_GetPrivate(cx, this));
+  free(JS_GetPrivate(this));
 }
 
-static JSBool luv_tcp_bind(JSContext *cx, uintN argc, jsval *vp) {
+static JSBool luv_tcp_bind(JSContext *cx, unsigned argc, jsval *vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_tcp_t* handle;
   handle = (uv_tcp_t*)JS_GetInstancePrivate(cx, this, &Tcp_class, NULL);
@@ -44,7 +44,7 @@ static JSBool luv_tcp_bind(JSContext *cx, uintN argc, jsval *vp) {
   return JS_TRUE;
 }
 
-static JSBool luv_tcp_nodelay(JSContext *cx, uintN argc, jsval *vp) {
+static JSBool luv_tcp_nodelay(JSContext *cx, unsigned argc, jsval *vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_tcp_t* handle;
   handle = (uv_tcp_t*)JS_GetInstancePrivate(cx, this, &Tcp_class, NULL);
@@ -58,7 +58,7 @@ static JSBool luv_tcp_nodelay(JSContext *cx, uintN argc, jsval *vp) {
   return JS_TRUE;
 }
 
-static JSBool luv_tcp_keepalive(JSContext *cx, uintN argc, jsval *vp) {
+static JSBool luv_tcp_keepalive(JSContext *cx, unsigned argc, jsval *vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_tcp_t* handle;
   handle = (uv_tcp_t*)JS_GetInstancePrivate(cx, this, &Tcp_class, NULL);
