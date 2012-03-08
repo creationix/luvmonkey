@@ -3,6 +3,7 @@
 
 #include "jsapi.h"
 #include "luv_handle.h"
+#include "helpers.h"
 
 JSObject* Stream_prototype;
 

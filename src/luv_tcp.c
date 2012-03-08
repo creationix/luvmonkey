@@ -18,6 +18,10 @@ static JSBool Tcp_constructor(JSContext *cx, unsigned argc, jsval *vp) {
   uv_tcp_init(uv_default_loop(), handle);
   JS_SetPrivate(obj, handle);
 
+  /* Store a reference to the object in the handle */
+  luv_ref_t* ref = LUV_REF(cx, obj);
+  handle->data = ref;
+
   JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
   return JS_TRUE;
 }
@@ -32,11 +36,15 @@ static JSBool luv_tcp_bind(JSContext *cx, unsigned argc, jsval *vp) {
   uv_tcp_t* handle;
   handle = (uv_tcp_t*)JS_GetInstancePrivate(cx, this, &Tcp_class, NULL);
 
-  /* TODO: don't hardcode */
-  const char* host = "0.0.0.0";
-  int port = 8080;
 
+  JSString* str;
+  int port;
+  if (!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "Si", &str, &port)) {
+    return JS_FALSE;
+  }
+  char *host = JS_EncodeString(cx, str);
   struct sockaddr_in address = uv_ip4_addr(host, port);
+  JS_free(cx, host);
 
   UV_CALL(uv_tcp_bind, handle, address);
 
