@@ -9,9 +9,9 @@
     return JS_FALSE;                                          \
   }
 
-#define LUV_REF(cx, obj)                                      \
+#define LUV_REF(context, object)                              \
   (luv_ref_t*)malloc(sizeof(luv_ref_t));                      \
-  ref->cx = cx;                                               \
-  ref->obj = obj;
+  ref->cx = context;                                          \
+  ref->obj = object;
 
 #endif

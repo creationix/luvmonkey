@@ -21,6 +21,7 @@ void luv_on_close(uv_handle_t* handle) {
     /* TODO: report properly */
     printf("Error in onClose callback\n");
   }
+  free(handle);
 }
 
 static JSBool luv_close(JSContext *cx, unsigned argc, jsval *vp) {

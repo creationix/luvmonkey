@@ -7,9 +7,17 @@ server.bind("0.0.0.0", 1337);
 server.listen(128, function () {
 	var client = new Tcp();
 	server.accept(client);
-	client.readStart(function (chunk) {
-		p("onRead", chunk);
-	});
+	client.readStart();
+	client.onData = function (chunk) {
+		p("onData", chunk);
+		client.write(chunk, function () {
+			p("onWrite", chunk);
+		});
+	};
+	client.onEnd = function () {
+		p("onEnd");
+		client.close();
+	};
 	p("Connection!", client);
 });
 
