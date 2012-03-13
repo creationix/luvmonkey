@@ -1,8 +1,8 @@
 {
   'variables': {
     # 'visibility%': 'hidden',         # V8's visibility setting
-    'target_arch%': 'amd64',          # set v8's target architecture
-    'host_arch%': 'amd64',            # set v8's host architecture
+    'target_arch%': 'x64',             # set v8's target architecture
+    'host_arch%': 'x64',               # set v8's host architecture
     # 'want_separate_host_toolset': 0, # V8 should not build target and host
     # 'library%': 'static_library',    # allow override to 'shared_library' for DLL/.so builds
     # 'component%': 'static_library',  # NB. these names match with what V8 expects

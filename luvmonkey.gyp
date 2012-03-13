@@ -6,7 +6,6 @@
   },
 
   'targets': [
-
     {
       'target_name': 'js2c',
       'type': 'none',
@@ -24,7 +23,6 @@
             '<(SHARED_INTERMEDIATE_DIR)/js_scripts.h',
           ],
 
-
           'action': [
             'python',
             'tools/js2c.py',
@@ -35,16 +33,19 @@
       ],
     },
 
-    { 'target_name': 'luvmonkey',
+    {
+      'target_name': 'luvmonkey',
       'type': 'executable',
       'dependencies': [
+        'deps/smjs/smjs.gyp:smjs',
         'deps/uv/uv.gyp:uv',
         'js2c#host'
       ],
       'conditions': [
         ['OS=="linux" or OS=="freebsd" or OS=="openbsd" or OS=="solaris"', {
           'cflags': [ '--std=c89', '-Wall', '-Werror' ],
-          'defines': [ '_GNU_SOURCE' ]
+          'defines': [ '_GNU_SOURCE' ],
+          'libraries': [ '-lrt' ],
         }],
       ],
       'include_dirs': [
@@ -55,10 +56,8 @@
         '<(SHARED_INTERMEDIATE_DIR)' # for js_scripts.h
       ],
       'libraries': [
-        "-ldl",
-        "-lm",
-        "-lrt",
-        'deps/mozilla-central/js/src/libjs_static.a',
+        '-ldl',
+        '-lm',
       ],
       'sources': [
         'src/luv_handle.c',
