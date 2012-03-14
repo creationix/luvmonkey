@@ -27,9 +27,10 @@ void luv_on_close(uv_handle_t* handle) {
 static JSBool luv_close(JSContext *cx, unsigned argc, jsval *vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_handle_t* handle;
+  JSObject* callback;
+
   handle = (uv_handle_t*)JS_GetPrivate(this);
 
-  JSObject* callback;
   if (!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "o", &callback)) {
     return JS_FALSE;
   }
@@ -49,15 +50,16 @@ static JSFunctionSpec Handle_methods[] = {
 
 int luv_handle_init(JSContext* cx, JSObject *uv) {
   Handle_prototype = JS_InitClass(cx, uv, NULL,
-    &Handle_class, Handle_constructor, 0, 
+    &Handle_class, Handle_constructor, 0,
     NULL, Handle_methods, NULL, NULL);
   return 0;
 }
 
 /* Store an async callback in an object and put the object in the gc root for safekeeping */
 JSBool luv_store_callback(JSContext* cx, JSObject *this, const char* name, JSObject* callback) {
+  jsval callback_val;
   if (!JS_AddObjectRoot(cx, &this)) return JS_FALSE;
-  jsval callback_val = OBJECT_TO_JSVAL(callback);
+  callback_val = OBJECT_TO_JSVAL(callback);
   return JS_SetProperty(cx, this, name, &callback_val);
 }
 

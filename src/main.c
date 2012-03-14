@@ -69,21 +69,23 @@ static JSBool Exit(JSContext *cx, unsigned argc, jsval *vp) {
 }
 
 static JSBool executeFile(JSContext *cx, unsigned argc, jsval *vp) {
-
   JSString* str;
   JSObject* obj;
+  char *filename;
+  JSScript* script;
+  jsval result;
+
   if (!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "So", &str, &obj)) {
     return JS_FALSE;
   }
-  char *filename = JS_EncodeString(cx, str);
+  filename = JS_EncodeString(cx, str);
 
-  JSScript* script = JS_CompileUTF8File(cx, JS_THIS_OBJECT(cx, vp), filename);
+  script = JS_CompileUTF8File(cx, JS_THIS_OBJECT(cx, vp), filename);
   JS_free(cx, filename);
   if (!script) {
     return JS_FALSE;
   }
 
-  jsval result;
   if (!JS_ExecuteScript(cx, obj, script, &result)) {
     return JS_FALSE;
   }
@@ -107,11 +109,17 @@ static JSFunctionSpec binding_functions[] = {
 
 int main(int argc, const char *argv[])
 {
+  int index;
 
   /* JS variables. */
   JSRuntime* rt;
   JSContext* cx;
   JSObject* global;
+  JSObject* alpha;
+  JSObject* bindings;
+  jsval global_val;
+  JSObject* args;
+  jsval args_val;
 
   /* Create a JS runtime. */
   rt = JS_NewRuntime(8L * 1024L * 1024L);
@@ -134,24 +142,23 @@ int main(int argc, const char *argv[])
      like Object and Array. */
   if (!JS_InitStandardClasses(cx, global)) return 1;
 
-  JSObject* alpha = JS_DefineObject(cx, global, "alpha", NULL, NULL, 0);
+  alpha = JS_DefineObject(cx, global, "alpha", NULL, NULL, 0);
 
   /* Attach the global functions */
   if (!JS_DefineFunctions(cx, alpha, global_functions)) return 1;
 
   /* expose the binding functions for require to use */
-  JSObject* bindings = JS_DefineObject(cx, alpha, "bindings", NULL, NULL, 0);
+  bindings = JS_DefineObject(cx, alpha, "bindings", NULL, NULL, 0);
   if (!JS_DefineFunctions(cx, bindings, binding_functions)) return 1;
 
   /* Set global on alpha */
-  jsval global_val = OBJECT_TO_JSVAL(global);
+  global_val = OBJECT_TO_JSVAL(global);
   if (!JS_SetProperty(cx, alpha, "global", &global_val)) return 1;
 
   /* Set args on alpha */
-  JSObject* args = JS_NewArrayObject(cx, 0, NULL);
-  jsval args_val = OBJECT_TO_JSVAL(args);
+  args = JS_NewArrayObject(cx, 0, NULL);
+  args_val = OBJECT_TO_JSVAL(args);
   if (!JS_SetProperty(cx, alpha, "args", &args_val)) return 1;
-  int index;
   for (index = 0; index < argc; index++) {
     jsval arg = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, argv[index]));
     if (!JS_SetElement(cx, args, index, &arg)) return 1;
