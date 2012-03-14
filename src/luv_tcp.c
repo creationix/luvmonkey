@@ -13,13 +13,14 @@ static JSClass Tcp_class = {
 
 static JSBool Tcp_constructor(JSContext *cx, unsigned argc, jsval *vp) {
   JSObject* obj = JS_NewObject(cx, &Tcp_class, Tcp_prototype, NULL);
+  luv_ref_t* ref;
 
   uv_tcp_t* handle = malloc(sizeof(uv_tcp_t));
   uv_tcp_init(uv_default_loop(), handle);
   JS_SetPrivate(obj, handle);
 
   /* Store a reference to the object in the handle */
-  luv_ref_t* ref = LUV_REF(cx, obj);
+  ref = LUV_REF(cx, obj);
   handle->data = ref;
 
   JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
@@ -34,16 +35,18 @@ static void Tcp_finalize(JSContext *cx, JSObject *this) {
 static JSBool luv_tcp_bind(JSContext *cx, unsigned argc, jsval *vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_tcp_t* handle;
-  handle = (uv_tcp_t*)JS_GetInstancePrivate(cx, this, &Tcp_class, NULL);
-
-
   JSString* str;
   int port;
+  char *host;
+  struct sockaddr_in address;
+
+  handle = (uv_tcp_t*)JS_GetInstancePrivate(cx, this, &Tcp_class, NULL);
+
   if (!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "Si", &str, &port)) {
     return JS_FALSE;
   }
-  char *host = JS_EncodeString(cx, str);
-  struct sockaddr_in address = uv_ip4_addr(host, port);
+  host = JS_EncodeString(cx, str);
+  address = uv_ip4_addr(host, port);
   JS_free(cx, host);
 
   UV_CALL(uv_tcp_bind, handle, address);
@@ -55,10 +58,11 @@ static JSBool luv_tcp_bind(JSContext *cx, unsigned argc, jsval *vp) {
 static JSBool luv_tcp_nodelay(JSContext *cx, unsigned argc, jsval *vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_tcp_t* handle;
-  handle = (uv_tcp_t*)JS_GetInstancePrivate(cx, this, &Tcp_class, NULL);
 
   /* TODO: don't hardcode */
   int enable = 1;
+
+  handle = (uv_tcp_t*)JS_GetInstancePrivate(cx, this, &Tcp_class, NULL);
 
   UV_CALL(uv_tcp_nodelay, handle, enable);
 
@@ -69,11 +73,12 @@ static JSBool luv_tcp_nodelay(JSContext *cx, unsigned argc, jsval *vp) {
 static JSBool luv_tcp_keepalive(JSContext *cx, unsigned argc, jsval *vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_tcp_t* handle;
-  handle = (uv_tcp_t*)JS_GetInstancePrivate(cx, this, &Tcp_class, NULL);
 
   /* TODO: don't hardcode */
   int enable = 1;
   int delay = 500;
+
+  handle = (uv_tcp_t*)JS_GetInstancePrivate(cx, this, &Tcp_class, NULL);
 
   UV_CALL(uv_tcp_keepalive, handle, enable, delay);
 
@@ -90,7 +95,7 @@ static JSFunctionSpec Tcp_methods[] = {
 
 int luv_tcp_init(JSContext* cx, JSObject *uv) {
   Tcp_prototype = JS_InitClass(cx, uv, Stream_prototype,
-    &Tcp_class, Tcp_constructor, 0, 
+    &Tcp_class, Tcp_constructor, 0,
     NULL, Tcp_methods, NULL, NULL);
   return 0;
 }

@@ -13,13 +13,15 @@ static JSClass Timer_class = {
 
 static JSBool Timer_constructor(JSContext *cx, unsigned argc, jsval *vp) {
   JSObject* obj = JS_NewObject(cx, &Timer_class, Timer_prototype, NULL);
+  uv_timer_t* handle;
+  luv_ref_t* ref;
 
-  uv_timer_t* handle = malloc(sizeof(uv_timer_t));
+  handle = malloc(sizeof(uv_timer_t));
   uv_timer_init(uv_default_loop(), handle);
   JS_SetPrivate(obj, handle);
 
   /* Store a reference to the object in the handle */
-  luv_ref_t* ref = LUV_REF(cx, obj);
+  ref = LUV_REF(cx, obj);
   handle->data = ref;
 
   JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
@@ -44,11 +46,12 @@ void luv_on_timer(uv_timer_t* handle, int status) {
 static JSBool luv_timer_start(JSContext* cx, unsigned argc, jsval *vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_timer_t* handle;
-  handle = (uv_timer_t*)JS_GetInstancePrivate(cx, this, &Timer_class, NULL);
-
   int32_t timeout;
   int32_t repeat;
   JSObject* callback;
+
+  handle = (uv_timer_t*)JS_GetInstancePrivate(cx, this, &Timer_class, NULL);
+
   if (!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "uuo", &timeout, &repeat, &callback)) {
     return JS_FALSE;
   }
@@ -86,9 +89,10 @@ static JSBool luv_timer_again(JSContext* cx, unsigned argc, jsval* vp) {
 static JSBool luv_timer_set_repeat(JSContext* cx, unsigned argc, jsval* vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_timer_t* handle;
+  int32_t repeat;
+
   handle = (uv_timer_t*)JS_GetInstancePrivate(cx, this, &Timer_class, NULL);
 
-  int32_t repeat;
   if (!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "u", &repeat)) {
     return JS_FALSE;
   }
@@ -102,9 +106,11 @@ static JSBool luv_timer_set_repeat(JSContext* cx, unsigned argc, jsval* vp) {
 static JSBool luv_timer_get_repeat(JSContext* cx, unsigned argc, jsval* vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_timer_t* handle;
+  int64_t repeat;
+
   handle = (uv_timer_t*)JS_GetInstancePrivate(cx, this, &Timer_class, NULL);
 
-  int64_t repeat = uv_timer_get_repeat(handle);
+  repeat = uv_timer_get_repeat(handle);
 
   JS_SET_RVAL(cx, vp, INT_TO_JSVAL(repeat));
   return JS_TRUE;
@@ -122,7 +128,7 @@ static JSFunctionSpec Timer_methods[] = {
 
 int luv_timer_init(JSContext* cx, JSObject *uv) {
   Timer_prototype = JS_InitClass(cx, uv, Handle_prototype,
-    &Timer_class, Timer_constructor, 0, 
+    &Timer_class, Timer_constructor, 0,
     NULL, Timer_methods, NULL, NULL);
   return 0;
 }

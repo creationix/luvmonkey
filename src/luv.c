@@ -64,12 +64,11 @@ static JSBool luv_get_total_memory(JSContext *cx, unsigned argc, jsval *vp) {
 
 static JSBool luv_loadavg(JSContext *cx, unsigned argc, jsval *vp) {
   double avg[3];
+  jsval values[3];
   uv_loadavg(avg);
-  jsval values[] = {
-    DOUBLE_TO_JSVAL(avg[0]),
-    DOUBLE_TO_JSVAL(avg[1]),
-    DOUBLE_TO_JSVAL(avg[2])
-  };
+  values[0] = DOUBLE_TO_JSVAL(avg[0]);
+  values[1] = DOUBLE_TO_JSVAL(avg[1]),
+  values[2] = DOUBLE_TO_JSVAL(avg[2]);
   JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(JS_NewArrayObject(cx, 3, values)));
   return JS_TRUE;
 }

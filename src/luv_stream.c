@@ -28,10 +28,11 @@ static void luv_on_connection(uv_stream_t* server, int status) {
 static JSBool luv_listen(JSContext* cx, unsigned argc, jsval *vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_stream_t* stream;
-  stream = (uv_stream_t*)JS_GetPrivate(this);
-
   int backlog;
   JSObject* callback;
+
+  stream = (uv_stream_t*)JS_GetPrivate(this);
+
   if (!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "io", &backlog, &callback)) {
     return JS_FALSE;
   }
@@ -48,9 +49,10 @@ static JSBool luv_accept(JSContext* cx, unsigned argc, jsval *vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_stream_t* server;
   uv_stream_t* client;
+  JSObject* obj;
+
   server = (uv_stream_t*)JS_GetPrivate(this);
 
-  JSObject* obj;
   if (!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "o", &obj)) {
     return JS_FALSE;
   }
@@ -74,9 +76,9 @@ static void luv_on_read(uv_stream_t* stream, ssize_t nread, uv_buf_t buf) {
   ref = (luv_ref_t*)stream->data;
 
   if (nread >= 0) {
-    jsval chunk[1] = { STRING_TO_JSVAL(JS_NewStringCopyN(ref->cx, buf.base, nread)) };
+    jsval chunk = STRING_TO_JSVAL(JS_NewStringCopyN(ref->cx, buf.base, nread));
 
-    if (!luv_call_callback(ref->cx, ref->obj, "onData", 1, chunk)) {
+    if (!luv_call_callback(ref->cx, ref->obj, "onData", 1, &chunk)) {
       /* TODO: report properly */
       printf("Error in onData callback\n");
     }
@@ -128,16 +130,19 @@ static JSBool luv_read_stop(JSContext* cx, unsigned argc, jsval* vp) {
 
 static void luv_on_write(uv_write_t* req, int status) {
   luv_ref_t* ref;
+  JSContext* cx;
+  JSObject* this;
+  JSObject* callback;
 
   /* Get the context, instance, and handle */
   ref = (luv_ref_t*)req->handle->data;
-  JSContext* cx = ref->cx;
-  JSObject* this = ref->obj;
+  cx = ref->cx;
+  this = ref->obj;
 
   /* Get the callback */
   ref = (luv_ref_t*)req->data;
   assert(ref->cx == cx);
-  JSObject* callback = ref->obj;
+  callback = ref->obj;
   free(ref);
 
   if (JS_ObjectIsFunction(cx, callback)) {
@@ -155,22 +160,27 @@ static void luv_on_write(uv_write_t* req, int status) {
 static JSBool luv_write(JSContext* cx, unsigned argc, jsval* vp) {
   JSObject* this = JS_THIS_OBJECT(cx, vp);
   uv_stream_t* stream;
-  stream = (uv_stream_t*)JS_GetPrivate(this);
-
   JSString* str;
   JSObject* callback;
+  uv_buf_t* buf;
+  size_t len;
+  luv_ref_t* ref;
+  uv_write_t* req;
+
+  stream = (uv_stream_t*)JS_GetPrivate(this);
+
   if (!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "So", &str, &callback)) {
     return JS_FALSE;
   }
   /* Put the string in a new uv_buf_t */
-  uv_buf_t* buf = (uv_buf_t*)malloc(sizeof(uv_buf_t));
-  size_t len = JS_GetStringEncodingLength(cx, str);
+  buf = (uv_buf_t*)malloc(sizeof(uv_buf_t));
+  len = JS_GetStringEncodingLength(cx, str);
   buf->base = (char*)malloc(len);
   buf->len = JS_EncodeStringToBuffer(str, buf->base, len);
 
   /* Store a reference to the callback in the write request */
-  luv_ref_t* ref = LUV_REF(cx, callback);
-  uv_write_t* req = (uv_write_t*)malloc(sizeof(uv_write_t));
+  ref = LUV_REF(cx, callback);
+  req = (uv_write_t*)malloc(sizeof(uv_write_t));
   req->data = ref;
 
   UV_CALL(uv_write, req, stream, buf, 1, luv_on_write);
@@ -190,7 +200,7 @@ static JSFunctionSpec Stream_methods[] = {
 
 int luv_stream_init(JSContext* cx, JSObject *uv) {
   Stream_prototype = JS_InitClass(cx, uv, Handle_prototype,
-    &Stream_class, Stream_constructor, 0, 
+    &Stream_class, Stream_constructor, 0,
     NULL, Stream_methods, NULL, NULL);
   return 0;
 }
