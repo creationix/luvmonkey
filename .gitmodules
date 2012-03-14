@@ -13,3 +13,6 @@
 [submodule "tools/gyp"]
 	path = tools/gyp
 	url = https://github.com/creationix/gyp.git
+[submodule "deps/smjs"]
+	path = deps/smjs
+	url = https://github.com/bnoordhuis/smjs.git

@@ -1,4 +1,3 @@
-*.a
 *.Makefile
 *.mk
 *.o
