@@ -1,5 +1,6 @@
 
 #include "jsapi.h"
+#include "lhttp_parser.h"
 #include "luv.h"
 #include "main.h"
 #include "js_scripts.h"
@@ -104,6 +105,7 @@ static JSFunctionSpec global_functions[] = {
 
 static JSFunctionSpec binding_functions[] = {
   JS_FS("uv", luv_init, 0, 0),
+  JS_FS("http_parser", lhttp_parser_init, 0, 0),
   JS_FS_END
 };
 

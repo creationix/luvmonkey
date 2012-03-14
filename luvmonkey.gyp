@@ -39,6 +39,7 @@
       'dependencies': [
         'deps/smjs/smjs.gyp:smjs',
         'deps/uv/uv.gyp:uv',
+        'deps/http-parser/http_parser.gyp:http_parser',
         'js2c#host'
       ],
       'conditions': [
@@ -57,11 +58,10 @@
       'include_dirs': [
         'src',
         'deps/uv/src/ares',
-        'deps/mozilla-central/js/src/dist/include',
-        'deps/mozilla-central/js/src',
         '<(SHARED_INTERMEDIATE_DIR)' # for js_scripts.h
       ],
       'sources': [
+        'src/lhttp_parser.c',
         'src/luv_handle.c',
         'src/luv_stream.c',
         'src/luv_tcp.c',
