@@ -47,6 +47,12 @@
           'defines': [ '_GNU_SOURCE' ],
           'libraries': [ '-lrt' ],
         }],
+        ['OS!="win"', {
+          'libraries': [
+            '-ldl',
+            '-lm',
+          ],
+        }],
       ],
       'include_dirs': [
         'src',
@@ -54,10 +60,6 @@
         'deps/mozilla-central/js/src/dist/include',
         'deps/mozilla-central/js/src',
         '<(SHARED_INTERMEDIATE_DIR)' # for js_scripts.h
-      ],
-      'libraries': [
-        '-ldl',
-        '-lm',
       ],
       'sources': [
         'src/luv_handle.c',
