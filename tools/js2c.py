@@ -33,7 +33,7 @@ def main():
   for source_file in source_files:
     lines = ReadFile(source_file)
     # lines = RemoveCommentsAndTrailingWhitespace(lines)
-    var_name = "embedded_" + re.sub(r'[./]', '_', source_file)
+    var_name = "embedded_" + re.sub(r'[./\\]', '_', source_file)
     o = "const char " + var_name + "[] = {\n" + ToCAsciiArray(lines + "\0") + "\n};\n"
 
     output.write(o)
