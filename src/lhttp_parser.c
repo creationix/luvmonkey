@@ -4,35 +4,17 @@
 #include "lhttp_parser.h"
 #include "http_parser.h"
 
-/*static const char* method_to_str(unsigned short m) {
+/*
+static const char* method_to_str(unsigned short m) {
   switch (m) {
-    case HTTP_DELETE:     return "DELETE";
-    case HTTP_GET:        return "GET";
-    case HTTP_HEAD:       return "HEAD";
-    case HTTP_POST:       return "POST";
-    case HTTP_PUT:        return "PUT";
-    case HTTP_CONNECT:    return "CONNECT";
-    case HTTP_OPTIONS:    return "OPTIONS";
-    case HTTP_TRACE:      return "TRACE";
-    case HTTP_COPY:       return "COPY";
-    case HTTP_LOCK:       return "LOCK";
-    case HTTP_MKCOL:      return "MKCOL";
-    case HTTP_MOVE:       return "MOVE";
-    case HTTP_PROPFIND:   return "PROPFIND";
-    case HTTP_PROPPATCH:  return "PROPPATCH";
-    case HTTP_UNLOCK:     return "UNLOCK";
-    case HTTP_REPORT:     return "REPORT";
-    case HTTP_MKACTIVITY: return "MKACTIVITY";
-    case HTTP_CHECKOUT:   return "CHECKOUT";
-    case HTTP_MERGE:      return "MERGE";
-    case HTTP_MSEARCH:    return "MSEARCH";
-    case HTTP_NOTIFY:     return "NOTIFY";
-    case HTTP_SUBSCRIBE:  return "SUBSCRIBE";
-    case HTTP_UNSUBSCRIBE:return "UNSUBSCRIBE";
-    default:              return "UNKNOWN_METHOD";
+#define X(num, name, string) case HTTP_##name: return #string;
+  HTTP_METHOD_MAP(X)
+#undef X
   }
+  return "UNKNOWN_METHOD";
 }
 */
+
 static struct http_parser_settings lhttp_parser_settings;
 
 static int lhttp_parser_on_message_begin(http_parser *p) {
