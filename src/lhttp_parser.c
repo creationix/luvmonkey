@@ -168,6 +168,7 @@ static JSBool lhttp_parser_parse_url(JSContext *cx, unsigned argc, jsval *vp) {
   struct http_parser_url u;
   int is_connect = 0;
   JSString* str;
+  JSObject* obj;
 
   if (!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "S/i", &str, &is_connect)) {
     return JS_FALSE;
@@ -182,7 +183,7 @@ static JSBool lhttp_parser_parse_url(JSContext *cx, unsigned argc, jsval *vp) {
     return JS_FALSE;
   }
 
-  JSObject* obj = JS_NewObject(cx, NULL, NULL, NULL);
+  obj = JS_NewObject(cx, NULL, NULL, NULL);
 
   if (u.field_set & (1 << UF_SCHEMA)) {
     jsval val = STRING_TO_JSVAL(JS_NewStringCopyN(cx, url + u.field_data[UF_SCHEMA].off, u.field_data[UF_SCHEMA].len));
@@ -194,8 +195,8 @@ static JSBool lhttp_parser_parse_url(JSContext *cx, unsigned argc, jsval *vp) {
   }
   if (u.field_set & (1 << UF_PORT)) {
     jsval val = STRING_TO_JSVAL(JS_NewStringCopyN(cx, url + u.field_data[UF_PORT].off, u.field_data[UF_PORT].len));
-    JS_SetProperty(cx, obj, "port_string", &val);
     jsval port = INT_TO_JSVAL(u.port);
+    JS_SetProperty(cx, obj, "port_string", &val);
     JS_SetProperty(cx, obj, "port", &port);
   }
   if (u.field_set & (1 << UF_PATH)) {
@@ -227,6 +228,7 @@ static JSFunctionSpec HttpParser_methods[] = {
 
 
 JSBool lhttp_parser_init(JSContext *cx, unsigned argc, jsval *vp) {
+  JSObject* http_parser;
 
   /* Hook up the C callbacks */
   lhttp_parser_settings.on_message_begin    = lhttp_parser_on_message_begin;
@@ -237,7 +239,7 @@ JSBool lhttp_parser_init(JSContext *cx, unsigned argc, jsval *vp) {
   lhttp_parser_settings.on_body             = lhttp_parser_on_body;
   lhttp_parser_settings.on_message_complete = lhttp_parser_on_message_complete;
 
-  JSObject* http_parser = JS_NewObject(cx, NULL, NULL, NULL);
+  http_parser = JS_NewObject(cx, NULL, NULL, NULL);
 
   HttpParser_prototype = JS_InitClass(cx, http_parser, NULL,
     &HttpParser_class, HttpParser_constructor, 0,
