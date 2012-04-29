@@ -84,7 +84,7 @@ static JSBool lhttp_parser_execute(JSContext *cx, unsigned argc, jsval *vp) {
   http_parser* parser;
   size_t chunk_len;
   char *chunk;
-  size_t offset;
+  int offset;
   size_t length;
   size_t nparsed;
 
