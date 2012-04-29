@@ -98,13 +98,17 @@ static JSBool lhttp_parser_execute(JSContext *cx, unsigned argc, jsval *vp) {
   this = JS_THIS_OBJECT(cx, vp);
   parser = (http_parser*)JS_GetInstancePrivate(cx, this, &HttpParser_class, NULL);
 
-  if (offset < chunk_len) {
+  if (offset < 0 || offset > chunk_len) {
     JS_ReportError(cx, "Offset is out of bounds");
     free(chunk);
     return JS_FALSE;
   }
-  if (offset + length <= chunk_len) {
-    JS_ReportError(cx, "Length extends beyond end of chunk");
+  printf("length %d, chunk_len %d, offset %d\n", (int)length, (int)chunk_len, (int)offset);
+  printf("chunk_len - offset %d\n", (int)(chunk_len - offset));
+  if (length < 0) printf("length < 0\n");
+  if (length > (chunk_len - offset)) printf("(length > (chunk_len - offset))\n");
+  if ((length < 0) || (length > (chunk_len - offset))) {
+    JS_ReportError(cx, "Invalid length or length extends beyond end of chunk");
     free(chunk);
     return JS_FALSE;
   }
