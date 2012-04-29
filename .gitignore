@@ -10,7 +10,6 @@
 *.vcxproj.user
 /build/gyp
 /Debug
-/deps
 /gyp-mac-tool
 /ipch
 /Makefile
