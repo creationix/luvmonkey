@@ -85,7 +85,7 @@ static JSBool lhttp_parser_execute(JSContext *cx, unsigned argc, jsval *vp) {
   size_t chunk_len;
   char *chunk;
   int offset;
-  size_t length;
+  int length;
   size_t nparsed;
 
   if (!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "Sii", &str, &offset, &length)) {
@@ -103,10 +103,6 @@ static JSBool lhttp_parser_execute(JSContext *cx, unsigned argc, jsval *vp) {
     free(chunk);
     return JS_FALSE;
   }
-  printf("length %d, chunk_len %d, offset %d\n", (int)length, (int)chunk_len, (int)offset);
-  printf("chunk_len - offset %d\n", (int)(chunk_len - offset));
-  if (length < 0) printf("length < 0\n");
-  if (length > (chunk_len - offset)) printf("(length > (chunk_len - offset))\n");
   if ((length < 0) || (length > (chunk_len - offset))) {
     JS_ReportError(cx, "Invalid length or length extends beyond end of chunk");
     free(chunk);
