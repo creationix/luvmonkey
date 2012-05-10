@@ -170,9 +170,8 @@ int main(int argc, const char *argv[])
   JS_EvaluateScript(cx, global, embedded_src_main_js, strlen(embedded_src_main_js), "main.js", 1, NULL);
 
   /* Cleanup. */
-  // TODO: find out why this triggers a smjs assert to fail.
-  // JS_DestroyContext(cx);
-  // JS_DestroyRuntime(rt);
-  // JS_ShutDown();
+  JS_DestroyContext(cx);
+  JS_DestroyRuntime(rt);
+  JS_ShutDown();
   return 0;
 }

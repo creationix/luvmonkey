@@ -37,7 +37,7 @@
       'target_name': 'luvmonkey',
       'type': 'executable',
       'dependencies': [
-        'deps/smjs/smjs.gyp:smjs',
+        # 'deps/smjs/smjs.gyp:smjs',
         'deps/uv/uv.gyp:uv',
         'deps/http-parser/http_parser.gyp:http_parser',
         'js2c#host'
@@ -52,12 +52,15 @@
           'libraries': [
             '-ldl',
             '-lm',
+            '/home/tim/mozilla-central/js/src/libjs_static.a'
           ],
         }],
       ],
       'include_dirs': [
         'src',
         'deps/uv/src/ares',
+        '/home/tim/mozilla-central/js/src/',
+        '/home/tim/mozilla-central/js/src/dist/include/',
         '<(SHARED_INTERMEDIATE_DIR)' # for js_scripts.h
       ],
       'sources': [
