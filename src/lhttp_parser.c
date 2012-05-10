@@ -53,7 +53,8 @@ static int lhttp_parser_on_headers_complete(http_parser *p) {
   return 0;
 }
 
-static void HttpParser_finalize(JSContext *cx, JSObject *obj);
+static void HttpParser_finalize(JSFreeOp *fop, JSObject *obj);
+
 
 static JSClass HttpParser_class = {
   "HttpParser", JSCLASS_HAS_PRIVATE,
@@ -74,7 +75,7 @@ static JSBool HttpParser_constructor(JSContext *cx, unsigned argc, jsval *vp) {
   return JS_TRUE;
 }
 
-static void HttpParser_finalize(JSContext *cx, JSObject *this) {
+static void HttpParser_finalize(JSFreeOp *fop, JSObject *this) {
   free(JS_GetPrivate(this));
 }
 

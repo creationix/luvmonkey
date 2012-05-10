@@ -1,7 +1,7 @@
 #include "uv.h"
 #include "luv_timer.h"
 
-static void Timer_finalize(JSContext *cx, JSObject *obj);
+static void Timer_finalize(JSFreeOp *fop, JSObject *obj);
 
 static JSClass Timer_class = {
   "Timer", JSCLASS_HAS_PRIVATE,
@@ -29,7 +29,7 @@ static JSBool Timer_constructor(JSContext *cx, unsigned argc, jsval *vp) {
 }
 
 /* Free the uv_tcp_t* when the object gets GCed */
-static void Timer_finalize(JSContext *cx, JSObject *this) {
+static void Timer_finalize(JSFreeOp *fop, JSObject *this) {
   free(JS_GetPrivate(this));
 }
 

@@ -1,7 +1,7 @@
 #include "uv.h"
 #include "luv_tcp.h"
 
-static void Tcp_finalize(JSContext *cx, JSObject *obj);
+static void Tcp_finalize(JSFreeOp *fop, JSObject *obj);
 
 static JSClass Tcp_class = {
   "Tcp", JSCLASS_HAS_PRIVATE,
@@ -28,7 +28,7 @@ static JSBool Tcp_constructor(JSContext *cx, unsigned argc, jsval *vp) {
 }
 
 /* Free the uv_tcp_t* when the object gets GCed */
-static void Tcp_finalize(JSContext *cx, JSObject *this) {
+static void Tcp_finalize(JSFreeOp *fop, JSObject *this) {
   free(JS_GetPrivate(this));
 }
 
